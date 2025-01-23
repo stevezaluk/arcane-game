@@ -61,6 +61,7 @@ func initConfig() {
 			os.Exit(1)
 		}
 
+		viper.SetConfigType("json")
 		viper.AddConfigPath(home + defaultConfigPath)
 		viper.SetConfigName(defaultConfigName)
 	}
