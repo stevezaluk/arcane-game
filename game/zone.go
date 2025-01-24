@@ -16,11 +16,19 @@ type Zone struct {
 	ZoneId string
 	Owner  *Player
 
+	cards []*CardObject
 	// cards here
 
 	IsPublic  bool
 	IsShared  bool
 	IsOrdered bool
+}
+
+/*
+All - Return all the cards currently placed within the Zone
+*/
+func (zone *Zone) All() []*CardObject {
+	return zone.cards
 }
 
 /*
