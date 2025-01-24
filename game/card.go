@@ -35,3 +35,16 @@ func (card *CardObject) UnTap() {
 		card.IsTapped = false
 	}
 }
+
+/*
+NewCardObject - Create a new pointer to a card object. Its Metadata, Owner, and ParentZone are required
+*/
+func NewCardObject(metadata *card.CardSet, owner *Player, zone *Zone) *CardObject {
+	return &CardObject{
+		Metadata:          metadata,
+		Owner:             owner,
+		Controller:        owner,
+		ParentZone:        zone,
+		WasPlayedThisTurn: true,
+	}
+}
