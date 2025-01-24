@@ -17,7 +17,6 @@ type Zone struct {
 	Owner  *Player
 
 	cards []*CardObject
-	// cards here
 
 	IsPublic  bool
 	IsShared  bool
@@ -29,6 +28,13 @@ All - Return all the cards currently placed within the Zone
 */
 func (zone *Zone) All() []*CardObject {
 	return zone.cards
+}
+
+/*
+Size - Return the number of cards within the Zone
+*/
+func (zone *Zone) Size() int {
+	return len(zone.cards)
 }
 
 /*
