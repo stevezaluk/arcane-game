@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// simulateCmd represents the simulate command
 var simulateCmd = &cobra.Command{
 	Use:   "simulate",
 	Short: "Simulate a game of MTG without initializing the server or making API Calls",
