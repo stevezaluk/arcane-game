@@ -17,3 +17,21 @@ type CardObject struct {
 	IsFaceDown        bool
 	WasPlayedThisTurn bool
 }
+
+/*
+Tap - Tap down the card object by setting IsTapped to true
+*/
+func (card *CardObject) Tap() {
+	if !card.IsTapped {
+		card.IsTapped = true
+	}
+}
+
+/*
+UnTap - UnTap the requested card if IsTapped is true
+*/
+func (card *CardObject) UnTap() {
+	if card.IsTapped {
+		card.IsTapped = false
+	}
+}
