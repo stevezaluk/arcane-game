@@ -18,6 +18,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/stevezaluk/arcane-game/game"
+	"github.com/stevezaluk/arcane-game/prompt"
 )
 
 var simulateCmd = &cobra.Command{
@@ -27,6 +29,9 @@ var simulateCmd = &cobra.Command{
 or setting up the network infrastructure required to start a game server. You can use this
 for experimenting with the Game engine itself`,
 	Run: func(cmd *cobra.Command, args []string) {
+		lobby := game.NewGame("Simulated Game", game.CommanderGameMode)
+		cli := prompt.NewCLI(lobby)
+		cli.Start()
 	},
 }
 
