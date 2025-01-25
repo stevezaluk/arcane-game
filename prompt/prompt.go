@@ -1,8 +1,10 @@
 package prompt
 
 import (
+	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/stevezaluk/arcane-game/game"
+	"os"
 )
 
 /*
@@ -17,7 +19,10 @@ type CommandLinePrompt struct {
 executor - Function for executing the logic of the command line prompt
 */
 func executor(in string) {
-
+	if in == "exit" {
+		fmt.Println("Exiting simulation...")
+		os.Exit(0)
+	}
 }
 
 /*
@@ -35,4 +40,8 @@ func NewCLI(game *game.Game) *CommandLinePrompt {
 		Game:   game,
 		Prompt: prompt.New(executor, completer, prompt.OptionPrefix(">>> ")),
 	}
+}
+
+func (cmd *CommandLinePrompt) Start() {
+	cmd.Prompt.Run()
 }
