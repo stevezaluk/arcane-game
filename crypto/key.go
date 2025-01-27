@@ -1,10 +1,12 @@
 package crypto
 
 import (
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 )
@@ -56,4 +58,34 @@ PublicKeyChecksum - Generate a SHA-256 checksum for a RSA public key
 func (key *KeyPair) PublicKeyChecksum() string {
 	hash := sha256.Sum256([]byte(key.PublicKeyPEM()))
 	return hex.EncodeToString(hash[:])
+}
+
+/*
+EncryptMessage - Encrypt and base64 encode a plain text message using the public key and return its cipher
+text
+*/
+func (key *KeyPair) EncryptMessage(message string) (string, error) {
+	cipherText, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &key.PublicKey, []byte(message), nil)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.WithPadding(base64.StdPadding).EncodeToString(cipherText), nil
+}
+
+/*
+DecryptMessage - Decrypt a base64 encoded encrypted message using the key pairs private key
+*/
+func (key *KeyPair) DecryptMessage(cipher string) (string, error) {
+	cipherText, err := base64.StdEncoding.WithPadding(base64.StdPadding).DecodeString(cipher)
+	if err != nil {
+		return "", err
+	}
+
+	plainText, err := key.privateKey.Decrypt(nil, cipherText, &rsa.OAEPOptions{Hash: crypto.SHA256})
+	if err != nil {
+		return "", err
+	}
+
+	return string(plainText), nil
 }
