@@ -18,8 +18,8 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/stevezaluk/arcane-game/net"
 )
 
 // clientCmd represents the client command
@@ -28,7 +28,10 @@ var clientCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("client called")
+		gameClient, err := net.ClientConnect()
+		fmt.Println(gameClient, err)
+
+		gameClient.Welcome()
 	},
 }
 
