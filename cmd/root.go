@@ -19,9 +19,13 @@ package cmd
 import (
 	"fmt"
 	"github.com/mitchellh/go-homedir"
+	slogmulti "github.com/samber/slog-multi"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/stevezaluk/mtgjson-sdk-client/config"
+	"log/slog"
 	"os"
+	"time"
 )
 
 const (
@@ -47,6 +51,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initLogger)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.arcane-game.yaml)")
 }
 
@@ -66,4 +71,26 @@ func initConfig() {
 		fmt.Println("error: Failed to read config file (", err.Error(), ")")
 		os.Exit(1)
 	}
+}
+
+func initLogger() {
+	buildFileName := func() string {
+		timestamp := time.Now().Format(time.RFC3339)
+		return viper.GetString("log.path") + "/arcane-" + timestamp + ".json"
+	}
+
+	file, err := os.OpenFile(buildFileName(), os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		fmt.Println("error: Failed to init logger (", err.Error(), ")")
+		os.Exit(1)
+	}
+
+	handler := slogmulti.Fanout(
+		slog.NewJSONHandler(file, nil),
+		slog.NewTextHandler(os.Stdout, nil))
+
+	slog.SetDefault(slog.New(handler))
+
+	viper.Set("log.fileRef", file)
+	viper.Set("log.file", file.Name())
 }
