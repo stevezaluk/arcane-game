@@ -18,6 +18,9 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/stevezaluk/arcane-game/game"
+	"github.com/stevezaluk/arcane-game/net"
 )
 
 var runCmd = &cobra.Command{
@@ -25,9 +28,21 @@ var runCmd = &cobra.Command{
 	Short: "Run the server according to the configuration values you have provided",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		server, err := net.NewServer(viper.GetString("server.lobby_name"), viper.GetString("server.game_mode"))
+		if err != nil {
+			panic(err)
+		}
+
+		server.Start()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(runCmd)
+
+	runCmd.Flags().StringP("name", "n", "Default Server Name", "Describe the name of the lobby that you are starting")
+	viper.BindPFlag("server.lobby_name", runCmd.Flags().Lookup("name"))
+
+	runCmd.Flags().StringP("mode", "m", game.CommanderGameMode, "Set the game mode for the lobby that you are starting")
+	viper.BindPFlag("server.game_mode", runCmd.Flags().Lookup("mode"))
 }
