@@ -1,9 +1,9 @@
 package net
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/game"
+	"log/slog"
 	stdNet "net"
 )
 
@@ -51,7 +51,12 @@ HandleClient - Provides an entrypoint for the client to start key negotiation wi
 */
 func (server *GameServer) HandleClient(conn stdNet.Conn) {
 	message, err := BasicRead(conn)
-	fmt.Println(message, err)
+	if err != nil {
+		slog.Error("Failed to read message from client", "err", err.Error())
+		return
+	}
+
+	slog.Info("Message from Client", "message", message, "remoteAddr", conn.RemoteAddr())
 }
 
 /*
@@ -72,7 +77,7 @@ func (server *GameServer) waitForConnections() {
 				continue
 			}
 
-			fmt.Println("connection accepted: ", conn.RemoteAddr())
+			slog.Info("Client connected", "remoteAddr", conn.RemoteAddr())
 			server.ConnectionCount++
 			go server.HandleClient(conn)
 		}
@@ -83,8 +88,13 @@ func (server *GameServer) waitForConnections() {
 Start - Primary entrypoint for starting the server
 */
 func (server *GameServer) Start() {
+	slog.Info("Starting game server", "lobbyName", server.Game.Name, "gameMode", server.Game.GameMode)
 	err := server.listen()
-	fmt.Println(err)
+	if err != nil {
+		slog.Error("Failed to start listening for connections", "err", err.Error())
+		return
+	}
 
+	slog.Info("Server now waiting for new connections")
 	server.waitForConnections()
 }

@@ -1,8 +1,8 @@
 package net
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
+	"log/slog"
 	stdNet "net"
 )
 
@@ -26,5 +26,8 @@ func (client *GameClient) Welcome() {
 	conn := client.Conn
 
 	err := BasicWrite(conn, "Hello from Client")
-	fmt.Println(err)
+	if err != nil {
+		slog.Error("Failed to send welcome message to server", "err", err.Error())
+		return
+	}
 }
