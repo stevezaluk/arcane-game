@@ -18,11 +18,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/stevezaluk/mtgjson-sdk-client/config"
 	"os"
-
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -52,23 +51,19 @@ func init() {
 }
 
 func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
+	if cfgFile == "" {
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("error: Failed to find home directory (", err.Error(), ")")
 			os.Exit(1)
 		}
 
-		viper.SetConfigType("json")
-		viper.AddConfigPath(home + defaultConfigPath)
-		viper.SetConfigName(defaultConfigName)
+		cfgFile = home + defaultConfigPath + "/" + defaultConfigName
 	}
 
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	err := config.ReadConfigFile(cfgFile)
+	if err != nil {
+		fmt.Println("error: Failed to read config file (", err.Error(), ")")
+		os.Exit(1)
 	}
 }
