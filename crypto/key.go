@@ -3,6 +3,10 @@ package crypto
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/hex"
+	"encoding/pem"
 )
 
 /*
@@ -32,4 +36,24 @@ func NewKeyPair() (*KeyPair, error) {
 		privateKey: privateKey,
 		PublicKey:  privateKey.PublicKey,
 	}, nil
+}
+
+/*
+PublicKeyPEM - Convert the public key to a PEM encoded string for transmission
+*/
+func (key *KeyPair) PublicKeyPEM() string {
+	block := &pem.Block{
+		Type:  "RSA PUBLIC KEY",
+		Bytes: x509.MarshalPKCS1PublicKey(&key.PublicKey),
+	}
+
+	return string(pem.EncodeToMemory(block))
+}
+
+/*
+PublicKeyChecksum - Generate a SHA-256 checksum for a RSA public key
+*/
+func (key *KeyPair) PublicKeyChecksum() string {
+	hash := sha256.Sum256([]byte(key.PublicKeyPEM()))
+	return hex.EncodeToString(hash[:])
 }
