@@ -20,7 +20,7 @@ type KeyPair struct {
 }
 
 /*
-NewKeyPair - A constructor for the *KeyPair object. Generates and validates a RSA key and
+NewKeyPair - A constructor for the *KeyPair object. Generates and validates an RSA key and
 stores it within the KeyPair structure
 */
 func NewKeyPair() (*KeyPair, error) {
