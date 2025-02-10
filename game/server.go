@@ -54,9 +54,9 @@ func (server *GameServer) listen() error {
 }
 
 /*
-HandleClient - Provides an entrypoint for the client to start key negotiation with the server
+handleClient - Provides an entrypoint for the client to start key negotiation with the server
 */
-func (server *GameServer) HandleClient(conn stdNet.Conn) {
+func (server *GameServer) handleClient(conn stdNet.Conn) {
 	message, err := net.BasicRead(conn)
 	if err != nil {
 		slog.Error("Failed to read message from client", "err", err.Error())
@@ -86,7 +86,7 @@ func (server *GameServer) waitForConnections() {
 
 			slog.Info("Client connected", "remoteAddr", conn.RemoteAddr())
 			server.ConnectionCount++
-			go server.HandleClient(conn)
+			go server.handleClient(conn)
 		}
 	}
 }
