@@ -2,13 +2,28 @@ package game
 
 import (
 	"github.com/spf13/viper"
+	"github.com/stevezaluk/arcane-game/crypto"
 	"github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	stdNet "net"
 )
 
 type GameClient struct {
-	Conn stdNet.Conn
+	Conn          stdNet.Conn
+	CryptoHandler *crypto.EncryptionHandler
+}
+
+/*
+NewClient - Constructor for the GameClient. Initializes the crypto.EncryptionHandler for the
+client and then returns a pointer to a new GameClient
+*/
+func NewClient() (*GameClient, error) {
+	handler, err := crypto.NewClientHandler()
+	if err != nil {
+		return nil, err
+	}
+
+	return &GameClient{CryptoHandler: handler}, nil
 }
 
 func ClientConnect() (*GameClient, error) {
