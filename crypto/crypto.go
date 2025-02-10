@@ -21,3 +21,17 @@ func HandlerFromServerKey(serverKey *KeyPair) (*EncryptionHandler, error) {
 
 	return &EncryptionHandler{serverKey: serverKey, clientKey: clientKey}, nil
 }
+
+/*
+ClientKey - Return a pointer to the client key pair
+*/
+func (handler *EncryptionHandler) ClientKey() *KeyPair {
+	return handler.clientKey
+}
+
+/*
+ServerKey - Return a pointer to the server key pair
+*/
+func (handler *EncryptionHandler) ServerKey() *KeyPair {
+	return handler.serverKey
+}
