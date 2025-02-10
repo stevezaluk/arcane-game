@@ -8,6 +8,9 @@ import (
 	"strconv"
 )
 
+/*
+GameClient - A structure representing a client 9player) connecting to the Server
+*/
 type GameClient struct {
 	Conn          stdNet.Conn
 	CryptoHandler *crypto.EncryptionHandler
