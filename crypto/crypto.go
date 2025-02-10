@@ -21,16 +21,31 @@ type EncryptionHandler struct {
 }
 
 /*
-HandlerFromServerKey - Creates a new encryption handler from an existing server key. This generates
-a fresh key pair that can be used with the client (specifically within the context of a player)
+NewClientHandler - Creates a new EncryptionHandler for use with the client. A new KeyPair
+will get generated and stored while leaving the server key nil. This is to ensure that we can
+set this value during EncryptionHandler.ClientKEX
 */
-func HandlerFromServerKey(serverKey *KeyPair) (*EncryptionHandler, error) {
+func NewClientHandler() (*EncryptionHandler, error) {
 	clientKey, err := NewKeyPair()
 	if err != nil {
 		return nil, err
 	}
 
-	return &EncryptionHandler{serverKey: serverKey, clientKey: clientKey}, nil
+	return &EncryptionHandler{serverKey: nil, clientKey: clientKey}, nil
+}
+
+/*
+NewServerHandler - Creates a new EncryptionHandler for use on the game server. A new KeyPair
+will get generated and stored while leaving the clientKey nil. This is to ensure that we can
+set this value during EncryptionHandler.ServerKEX
+*/
+func NewServerHandler() (*EncryptionHandler, error) {
+	serverKey, err := NewKeyPair()
+	if err != nil {
+		return nil, err
+	}
+
+	return &EncryptionHandler{serverKey: serverKey, clientKey: nil}, nil
 }
 
 /*
@@ -114,12 +129,12 @@ func (handler *EncryptionHandler) sendKeyValidation(keyPair *KeyPair, conn net.C
 }
 
 /*
-KEX - Start the server key exchange routine between the client and the server. First the server
+ServerKEX - Start the server key exchange routine between the client and the server. First the server
 sends it PEM encoded public key to the client and then waits for a response from the client to validate
 the key it has stored. If errors arise here they are logged, the connection is cancelled, and associating
 go-routines are cancelled
 */
-func (handler *EncryptionHandler) KEX(ctx context.Context, conn net.Conn) {
+func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) {
 	slog.Info("Starting key exchange between client", "conn", conn.RemoteAddr())
 
 	err := handler.sendKey(handler.ServerKey(), conn)
