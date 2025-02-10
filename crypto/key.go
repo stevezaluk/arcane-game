@@ -9,7 +9,18 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
+	"errors"
 )
+
+const (
+	blockType = "PUBLIC KEY"
+)
+
+/*
+ErrPemDecodeFailed - Returned when there is an error with parsing a PEM public key string, primarily
+from FromPEMPublicKey
+*/
+var ErrPemDecodeFailed = errors.New("key: Failed to decode PEM public key")
 
 /*
 KeyPair - Represents a private/public 4096-bit RSA key pair
@@ -38,6 +49,20 @@ func NewKeyPair() (*KeyPair, error) {
 		privateKey: privateKey,
 		PublicKey:  privateKey.PublicKey,
 	}, nil
+}
+
+/*
+FromPEMPublicKey - Parses a PEM encoded public key from a string and returns a key pair representing it.
+This is usually used to create a key pair after the client sends its key
+*/
+func FromPEMPublicKey(pemKey string) (*KeyPair, error) {
+	block, _ := pem.Decode([]byte(pemKey))
+	publicKey, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return &KeyPair{PublicKey: *publicKey}, nil
 }
 
 /*
