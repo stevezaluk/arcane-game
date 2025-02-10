@@ -162,3 +162,39 @@ func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) 
 
 	handler.clientKey = clientKeyPair
 }
+
+/*
+ClientKEX - Starts the client side key exchange. First the routine waits to receive and validate
+the server KeyPair then sends its own generated KeyPair to the server for validation. Once both are
+validated the server proceeds with the rest of the client connection routine. If errors arise here
+they are logged, the connection is cancelled, and associating go-routines are cancelled
+*/
+func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) {
+	slog.Info("Starting key exchange between server", "conn", conn.RemoteAddr())
+
+	serverKeyPair, err := handler.receiveKey(conn)
+	if err != nil {
+		slog.Error("Failed to receive key from server", "err", err.Error())
+		return
+	}
+
+	err = handler.sendKeyValidation(serverKeyPair, conn)
+	if err != nil {
+		slog.Error("Key validation for server key pair has failed", "err", err)
+		return
+	}
+
+	handler.serverKey = serverKeyPair
+
+	err = handler.sendKey(handler.ClientKey(), conn)
+	if err != nil {
+		slog.Error("Failed to send client key pair to server", "err", err)
+		return
+	}
+
+	err = handler.receiveKeyValidation(handler.ClientKey(), conn)
+	if err != nil {
+		slog.Error("Key validation for client key pair has failed", "err", err)
+		return
+	}
+}
