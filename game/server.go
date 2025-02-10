@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/spf13/viper"
+	"github.com/stevezaluk/arcane-game/crypto"
 	"github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	stdNet "net"
@@ -17,18 +18,24 @@ type GameServer struct {
 	ConnectionCount int
 	IsClosed        bool
 
-	Game *Game
-	// crypto here
+	Game          *Game
+	CryptoHandler *crypto.EncryptionHandler
 }
 
 /*
 NewServer - Initialize the game server and any crypto related functions
 */
 func NewServer(lobbyName string, gameMode string) (*GameServer, error) {
+	handler, err := crypto.NewServerHandler()
+	if err != nil {
+		return nil, err
+	}
+
 	gameObject := NewGame(lobbyName, gameMode)
 
 	return &GameServer{
-		Game: gameObject,
+		Game:          gameObject,
+		CryptoHandler: handler,
 	}, nil
 }
 
