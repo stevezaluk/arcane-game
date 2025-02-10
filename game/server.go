@@ -1,8 +1,8 @@
-package net
+package game
 
 import (
 	"github.com/spf13/viper"
-	"github.com/stevezaluk/arcane-game/game"
+	"github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	stdNet "net"
 )
@@ -17,7 +17,7 @@ type GameServer struct {
 	ConnectionCount int
 	IsClosed        bool
 
-	Game *game.Game
+	Game *Game
 	// crypto here
 }
 
@@ -25,7 +25,7 @@ type GameServer struct {
 NewServer - Initialize the game server and any crypto related functions
 */
 func NewServer(lobbyName string, gameMode string) (*GameServer, error) {
-	gameObject := game.NewGame(lobbyName, gameMode)
+	gameObject := NewGame(lobbyName, gameMode)
 
 	return &GameServer{
 		Game: gameObject,
@@ -50,7 +50,7 @@ func (server *GameServer) listen() error {
 HandleClient - Provides an entrypoint for the client to start key negotiation with the server
 */
 func (server *GameServer) HandleClient(conn stdNet.Conn) {
-	message, err := BasicRead(conn)
+	message, err := net.BasicRead(conn)
 	if err != nil {
 		slog.Error("Failed to read message from client", "err", err.Error())
 		return

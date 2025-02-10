@@ -1,7 +1,8 @@
-package net
+package game
 
 import (
 	"github.com/spf13/viper"
+	"github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	stdNet "net"
 )
@@ -25,7 +26,7 @@ func ClientConnect() (*GameClient, error) {
 func (client *GameClient) Welcome() {
 	conn := client.Conn
 
-	err := BasicWrite(conn, "Hello from Client")
+	err := net.BasicWrite(conn, "Hello from Client")
 	if err != nil {
 		slog.Error("Failed to send welcome message to server", "err", err.Error())
 		return
