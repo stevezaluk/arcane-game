@@ -1,11 +1,11 @@
 package game
 
 import (
-	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/crypto"
 	"github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	stdNet "net"
+	"strconv"
 )
 
 type GameClient struct {
@@ -26,16 +26,20 @@ func NewClient() (*GameClient, error) {
 	return &GameClient{CryptoHandler: handler}, nil
 }
 
-func ClientConnect() (*GameClient, error) {
-	ip := viper.GetString("client.server_ip") + ":" + viper.GetString("client.server_port")
-	conn, err := stdNet.Dial("tcp", ip)
+/*
+Connect - Connect to a running Arcane server and initiate
+*/
+func (client *GameClient) Connect(ipAddress string, port int) error {
+	uri := ipAddress + ":" + strconv.Itoa(port)
+
+	conn, err := stdNet.Dial("tcp", uri)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &GameClient{
-		Conn: conn,
-	}, nil
+	client.Conn = conn
+
+	return nil
 }
 
 func (client *GameClient) Welcome() {
