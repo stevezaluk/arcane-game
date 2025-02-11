@@ -1,9 +1,8 @@
 package game
 
 import (
+	"context"
 	"github.com/stevezaluk/arcane-game/crypto"
-	"github.com/stevezaluk/arcane-game/net"
-	"log/slog"
 	stdNet "net"
 	"strconv"
 )
@@ -41,16 +40,7 @@ func (client *GameClient) Connect(ipAddress string, port int) error {
 	}
 
 	client.Conn = conn
+	client.CryptoHandler.ClientKEX(context.Background(), client.Conn)
 
 	return nil
-}
-
-func (client *GameClient) Welcome() {
-	conn := client.Conn
-
-	err := net.BasicWrite(conn, "Hello from Client")
-	if err != nil {
-		slog.Error("Failed to send welcome message to server", "err", err.Error())
-		return
-	}
 }

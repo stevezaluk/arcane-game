@@ -1,11 +1,12 @@
 package game
 
 import (
+	"context"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/crypto"
-	"github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	stdNet "net"
+	"sync"
 )
 
 /*
@@ -56,14 +57,10 @@ func (server *GameServer) listen() error {
 /*
 handleClient - Provides an entrypoint for the client to start key negotiation with the server
 */
-func (server *GameServer) handleClient(conn stdNet.Conn) {
-	message, err := net.BasicRead(conn)
-	if err != nil {
-		slog.Error("Failed to read message from client", "err", err.Error())
-		return
-	}
+func (server *GameServer) handleClient(wg *sync.WaitGroup, conn stdNet.Conn) {
+	server.CryptoHandler.ServerKEX(context.Background(), conn)
 
-	slog.Info("Message from Client", "message", message, "remoteAddr", conn.RemoteAddr())
+	defer wg.Done()
 }
 
 /*
@@ -71,6 +68,8 @@ waitForConnections - Instructs the server to wait for connections and accept the
 connection count
 */
 func (server *GameServer) waitForConnections() {
+	var wg sync.WaitGroup
+
 	sock := *server.Listener
 	for {
 		if server.ConnectionCount == viper.GetInt("server.max_connections") {
@@ -86,9 +85,13 @@ func (server *GameServer) waitForConnections() {
 
 			slog.Info("Client connected", "remoteAddr", conn.RemoteAddr())
 			server.ConnectionCount++
-			go server.handleClient(conn)
+			wg.Add(1)
+
+			go server.handleClient(&wg, conn)
 		}
 	}
+
+	wg.Wait()
 }
 
 /*
