@@ -19,7 +19,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/stevezaluk/arcane-game/net"
+	"github.com/spf13/viper"
+	"github.com/stevezaluk/arcane-game/game"
+	"log/slog"
 )
 
 // clientCmd represents the client command
@@ -27,11 +29,24 @@ var clientCmd = &cobra.Command{
 	Use:   "client",
 	Short: "A brief description of your command",
 	Long:  ``,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if viper.GetBool("verbose") { // this is not working
+			slog.SetLogLoggerLevel(slog.LevelDebug)
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		gameClient, err := net.ClientConnect()
-		fmt.Println(gameClient, err)
+		gameClient, err := game.NewClient()
+		if err != nil {
+			fmt.Println("Error while creating game client", err.Error())
+			return
+		}
 
-		gameClient.Welcome()
+		err = gameClient.Connect(viper.GetString("client.server_ip"), viper.GetInt("client.server_port"))
+		if err != nil {
+			fmt.Println("Error while connecting client to game server", err.Error())
+			return
+		}
+
 	},
 }
 
