@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/game"
+	"log/slog"
 )
 
 // clientCmd represents the client command
@@ -28,6 +29,11 @@ var clientCmd = &cobra.Command{
 	Use:   "client",
 	Short: "A brief description of your command",
 	Long:  ``,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if viper.GetBool("verbose") { // this is not working
+			slog.SetLogLoggerLevel(slog.LevelDebug)
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		gameClient, err := game.NewClient()
 		if err != nil {
