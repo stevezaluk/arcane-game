@@ -40,8 +40,8 @@ func NewPlayer(user *user.User, library *DeckObject, conn net.Conn) *Player {
 		LifeTotal: 20,
 	}
 
-	graveyard := NewZone(GraveyardZoneId, player, true, false, true)
-	hand := NewZone(HandZoneId, player, false, false, false)
+	graveyard := NewZone(GraveyardZoneId, player.User, true, false, true)
+	hand := NewZone(HandZoneId, player.User, false, false, false)
 
 	player.Graveyard = graveyard
 	player.Hand = hand
