@@ -17,7 +17,7 @@ type Game struct {
 	Name     string
 	GameMode string
 
-	Players   []*Player
+	Players   map[string]*Player
 	GameOwner *Player
 
 	Battlefield *Zone
