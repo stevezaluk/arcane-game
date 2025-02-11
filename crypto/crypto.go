@@ -135,31 +135,37 @@ the key it has stored. If errors arise here they are logged, the connection is c
 go-routines are cancelled
 */
 func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) {
-	slog.Info("Starting key exchange between client", "conn", conn.RemoteAddr())
+	slog.Info("Starting key exchange between client", "conn", conn.RemoteAddr(), "checkSum", handler.ServerKey().PublicKeyChecksum())
 
+	slog.Debug("Sending server side key pair", "conn", conn.RemoteAddr(), "checkSum", handler.ServerKey().PublicKeyChecksum())
 	err := handler.sendKey(handler.ServerKey(), conn)
 	if err != nil {
 		slog.Error("Failed to send key to client", "err", err)
 		return
 	}
 
+	slog.Debug("Waiting for server side key pair validation", "conn", conn.RemoteAddr())
 	err = handler.receiveKeyValidation(handler.ServerKey(), conn)
 	if err != nil {
 		slog.Error("Key validation for server key pair has failed", "err", err)
 		return
 	}
 
+	slog.Debug("Server side key validated. Waiting for client side key pair", "conn", conn.RemoteAddr())
 	clientKeyPair, err := handler.receiveKey(conn)
 	if err != nil {
 		slog.Error("Failed to receive key from client", "err", err)
 		return
 	}
 
+	slog.Debug("Received client key pair", "conn", conn.RemoteAddr(), "checkSum", clientKeyPair.PublicKeyChecksum())
 	err = handler.sendKeyValidation(clientKeyPair, conn)
 	if err != nil {
 		slog.Error("Key validation for client key pair has failed", "err", err)
 	}
 
+	slog.Debug("Successfully validated client key pair", "conn", conn.RemoteAddr(), "checkSum", clientKeyPair.PublicKeyChecksum())
+	slog.Info("Server side key exchange completed", "conn", conn.RemoteAddr())
 	handler.clientKey = clientKeyPair
 }
 
@@ -172,18 +178,21 @@ they are logged, the connection is cancelled, and associating go-routines are ca
 func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) {
 	slog.Info("Starting key exchange between server", "conn", conn.RemoteAddr())
 
+	slog.Debug("Waiting for server side key pair", "conn", conn.RemoteAddr())
 	serverKeyPair, err := handler.receiveKey(conn)
 	if err != nil {
 		slog.Error("Failed to receive key from server", "err", err.Error())
 		return
 	}
 
+	slog.Debug("Received server key pair", "conn", conn.RemoteAddr(), "checkSum", serverKeyPair.PublicKeyChecksum())
 	err = handler.sendKeyValidation(serverKeyPair, conn)
 	if err != nil {
 		slog.Error("Key validation for server key pair has failed", "err", err)
 		return
 	}
 
+	slog.Debug("Successfully validated server side key pair. Sending client side key pair", "conn", conn.RemoteAddr())
 	handler.serverKey = serverKeyPair
 
 	err = handler.sendKey(handler.ClientKey(), conn)
@@ -192,9 +201,13 @@ func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) 
 		return
 	}
 
+	slog.Debug("Waiting to receive validation for client side key pair", "conn", conn.RemoteAddr())
 	err = handler.receiveKeyValidation(handler.ClientKey(), conn)
 	if err != nil {
 		slog.Error("Key validation for client key pair has failed", "err", err)
 		return
 	}
+
+	slog.Debug("Successfully validated client key pair", "conn", conn.RemoteAddr(), "checkSum", handler.clientKey.PublicKeyChecksum())
+	slog.Info("Client side key exchange completed", "conn", conn.RemoteAddr())
 }
