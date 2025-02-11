@@ -6,6 +6,7 @@ import (
 	arcaneNet "github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	"net"
+	"time"
 )
 
 // ErrKeyMismatch - Gets returned when the server/client fail to validate a key pair
@@ -124,6 +125,8 @@ func (handler *EncryptionHandler) sendKeyValidation(keyPair *KeyPair, conn net.C
 	if err != nil {
 		return err
 	}
+
+	time.Sleep(2)
 
 	return nil
 }
