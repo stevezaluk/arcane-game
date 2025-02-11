@@ -26,6 +26,9 @@ type Player struct {
 
 	IsMonarch   bool
 	IsGameOwner bool
+
+	CurrentPhase string
+	CurrentStep  string
 }
 
 /*
