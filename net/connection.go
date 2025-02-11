@@ -2,7 +2,7 @@ package net
 
 import "net"
 
-const bufferSize = 4096
+const bufferSize = 32000
 
 /*
 BasicRead - Use a connection object to either read messages from the server or the client
