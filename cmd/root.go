@@ -52,7 +52,11 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	cobra.OnInitialize(initLogger)
+
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.arcane-game.yaml)")
+
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Increase logging verbosity for client/server")
+	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 }
 
 func initConfig() {
