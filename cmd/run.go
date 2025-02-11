@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/game"
-	"github.com/stevezaluk/arcane-game/net"
 )
 
 var runCmd = &cobra.Command{
@@ -28,7 +27,7 @@ var runCmd = &cobra.Command{
 	Short: "Run the server according to the configuration values you have provided",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := net.NewServer(viper.GetString("server.lobby_name"), viper.GetString("server.game_mode"))
+		server, err := game.NewServer(viper.GetString("server.lobby_name"), viper.GetString("server.game_mode"))
 		if err != nil {
 			panic(err)
 		}
