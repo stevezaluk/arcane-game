@@ -41,7 +41,6 @@ var clientCmd = &cobra.Command{
 			return
 		}
 
-		gameClient.Welcome()
 	},
 }
 
