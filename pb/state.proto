@@ -2,8 +2,16 @@ syntax = "proto3";
 
 package game;
 
+import "pb/player.proto";
+import "pb/zone.proto";
+
 option go_package = "github.com/stevezaluk/arcane-game/models";
 
 message GameState {
-
+  string name = 1;
+  string gameMode = 2;
+  map<string, Player> players = 3;
+  Zone battlefield = 4;
+  Zone exile = 5;
+  Zone command = 6;
 }
