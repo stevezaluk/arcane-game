@@ -12,4 +12,8 @@ enum ArcaneNamespace {
 
 message ArcaneMessage {
   ArcaneNamespace namespace = 1;
+  string action = 2;
+  string identifier = 3;
+  repeated string values = 4;
+  string playerEmail = 5;
 }
