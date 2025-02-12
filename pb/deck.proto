@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package game;
+
+import "pb/zone.proto";
+
+option go_package = "github.com/stevezaluk/arcane-game/models";
+
+message Deck {
+  string name = 1;
+  string owner = 2;
+  string controller = 3;
+  Zone zone = 4;
+  bool isTopCardRevealed = 5;
+}
