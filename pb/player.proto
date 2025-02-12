@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package game;
 
-import "pb/zone.proto";
-import "pb/deck.proto";
+import "zone.proto";
+import "deck.proto";
 
 option go_package = "github.com/stevezaluk/arcane-game/models";
 
@@ -14,11 +14,11 @@ message Player {
   Zone graveyard = 3;
   Zone hand = 4;
 
-  int lifeTotal = 5;
-  int commanderDamage = 6;
-  int poisonCounters = 7;
-  int energyCounters = 8;
-  int experienceCounters = 9;
+  int64 lifeTotal = 5;
+  int64 commanderDamage = 6;
+  int64 poisonCounters = 7;
+  int64 energyCounters = 8;
+  int64 experienceCounters = 9;
 
   bool isMonarch = 10;
   bool isGameOwner = 11;

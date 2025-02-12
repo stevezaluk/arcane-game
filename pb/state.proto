@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package game;
 
-import "pb/player.proto";
-import "pb/zone.proto";
+import "player.proto";
+import "zone.proto";
 
 option go_package = "github.com/stevezaluk/arcane-game/models";
 
