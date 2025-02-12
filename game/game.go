@@ -92,12 +92,3 @@ func (game *Game) LookupPlayer(user *user.User) *Player {
 
 	return value
 }
-
-/*
-UnTapStep - Un-tap all the permanents a player controls in the battlefield
-*/
-func (game *Game) UnTapStep(player *Player) {
-	for _, card := range game.Battlefield.All() {
-		card.UnTap()
-	}
-}
