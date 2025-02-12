@@ -4,7 +4,12 @@ package game;
 
 option go_package = "github.com/stevezaluk/arcane-game/models";
 
+enum ArcaneNamespace {
+  CRYPTO_NAMESPACE = 0;
+  GAME_NAMESPACE = 1;
+  PLAYER_NAMESPACE = 2;
+}
 
 message ArcaneMessage {
-
+  ArcaneNamespace namespace = 1;
 }
