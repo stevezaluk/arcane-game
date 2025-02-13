@@ -6,7 +6,7 @@ import "zone.proto";
 
 option go_package = "github.com/stevezaluk/arcane-game/models";
 
-message Deck {
+message DeckObject {
   string name = 1;
   string owner = 2;
   string controller = 3;

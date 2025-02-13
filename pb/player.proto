@@ -9,7 +9,7 @@ option go_package = "github.com/stevezaluk/arcane-game/models";
 
 message Player {
   string email = 1;
-  Deck deck = 2;
+  DeckObject deck = 2;
 
   Zone graveyard = 3;
   Zone hand = 4;
