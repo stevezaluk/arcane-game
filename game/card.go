@@ -1,6 +1,10 @@
 package game
 
-import "github.com/stevezaluk/mtgjson-models/card"
+import (
+	"github.com/stevezaluk/arcane-game/models"
+	"github.com/stevezaluk/mtgjson-models/card"
+	"github.com/stevezaluk/mtgjson-models/user"
+)
 
 /*
 CardObject - Represents the card played or generated for the game. This needs to differ
@@ -9,8 +13,8 @@ ownership, its parent zone, and the state of the card
 */
 type CardObject struct {
 	Metadata   *card.CardSet
-	Owner      *Player
-	Controller *Player
+	Owner      *user.User
+	Controller *user.User
 	ParentZone *Zone
 
 	IsTapped          bool
