@@ -23,6 +23,19 @@ type CardObject struct {
 }
 
 /*
+NewCardObject - Create a new pointer to a card object. Its Metadata, Owner, and ParentZone are required
+*/
+func NewCardObject(metadata *card.CardSet, owner *user.User, zone *Zone) *CardObject {
+	return &CardObject{
+		Metadata:          metadata,
+		Owner:             owner,
+		Controller:        owner,
+		ParentZone:        zone,
+		WasPlayedThisTurn: true,
+	}
+}
+
+/*
 Protobuf - Convert a CardObject to it's protobuf representation
 */
 func (card *CardObject) Protobuf() *models.CardObject {
@@ -58,18 +71,5 @@ UnTap - UnTap the requested card if IsTapped is true
 func (card *CardObject) UnTap() {
 	if card.IsTapped {
 		card.IsTapped = false
-	}
-}
-
-/*
-NewCardObject - Create a new pointer to a card object. Its Metadata, Owner, and ParentZone are required
-*/
-func NewCardObject(metadata *card.CardSet, owner *user.User, zone *Zone) *CardObject {
-	return &CardObject{
-		Metadata:          metadata,
-		Owner:             owner,
-		Controller:        owner,
-		ParentZone:        zone,
-		WasPlayedThisTurn: true,
 	}
 }
