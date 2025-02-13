@@ -1,6 +1,9 @@
 package game
 
-import "github.com/stevezaluk/mtgjson-models/user"
+import (
+	"github.com/stevezaluk/arcane-game/models"
+	"github.com/stevezaluk/mtgjson-models/user"
+)
 
 const (
 	BattlefieldZoneId = "zone:battlefield"
@@ -40,6 +43,25 @@ func NewZone(zoneId string, owner *user.User, isPublic bool, isShared bool, isOr
 		IsPublic:  isPublic,
 		IsShared:  isShared,
 		IsOrdered: isOrdered,
+	}
+}
+
+/*
+Protobuf - Convert a Zone into it's protobuf representation
+*/
+func (zone *Zone) Protobuf() *models.Zone {
+	var cards []*models.CardObject
+	for _, card := range zone.cards {
+		cards = append(cards, card.Protobuf())
+	}
+
+	return &models.Zone{
+		ZoneId:    zone.ZoneId,
+		Owner:     zone.Owner.Email,
+		Cards:     cards,
+		IsPublic:  zone.IsPublic,
+		IsShared:  zone.IsShared,
+		IsOrdered: zone.IsOrdered,
 	}
 }
 
