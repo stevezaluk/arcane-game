@@ -52,7 +52,7 @@ func (card *CardObject) Protobuf() *models.CardObject {
 		IsFaceDown:        card.IsFaceDown,
 		WasPlayedThisTurn: card.WasPlayedThisTurn,
 		Owner:             card.Owner.Email,
-		Controller:        card.Owner.Email,
+		Controller:        card.Controller.Email,
 	}
 }
 
