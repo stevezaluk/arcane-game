@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/stevezaluk/arcane-game/models"
 	"github.com/stevezaluk/mtgjson-models/deck"
 	"github.com/stevezaluk/mtgjson-models/user"
 )
@@ -29,5 +30,18 @@ func NewDeckObject(deck *deck.Deck, owner *user.User) *DeckObject {
 		Owner:      owner,
 		Controller: owner,
 		Zone:       zone,
+	}
+}
+
+/*
+Protobuf - Convert a DeckObject to it's protobuf representation
+*/
+func (deck *DeckObject) Protobuf() *models.DeckObject {
+	return &models.DeckObject{
+		Name:              deck.Metadata.Name,
+		Owner:             deck.Owner.Email,
+		Controller:        deck.Controller.Email,
+		Zone:              deck.Zone.Protobuf(),
+		IsTopCardRevealed: deck.IsTopCardRevealed,
 	}
 }

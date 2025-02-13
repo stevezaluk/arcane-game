@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package game;
+
+import "zone.proto";
+import "deck.proto";
+
+option go_package = "github.com/stevezaluk/arcane-game/models";
+
+message Player {
+  string email = 1;
+  DeckObject deck = 2;
+
+  Zone graveyard = 3;
+  Zone hand = 4;
+
+  int64 lifeTotal = 5;
+  int64 commanderDamage = 6;
+  int64 poisonCounters = 7;
+  int64 energyCounters = 8;
+  int64 experienceCounters = 9;
+
+  bool isMonarch = 10;
+  bool isGameOwner = 11;
+
+  string currentPhase = 12;
+  string currentStep = 13;
+}

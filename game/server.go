@@ -55,9 +55,10 @@ func (server *GameServer) listen() error {
 }
 
 /*
-handleClient - Provides an entrypoint for the client to start key negotiation with the server
+initClient - Starts initialization of a newly connected client. It first starts server/client key exchange,
+and then initializes the Player object for the client
 */
-func (server *GameServer) handleClient(wg *sync.WaitGroup, conn stdNet.Conn) {
+func (server *GameServer) initClient(wg *sync.WaitGroup, conn stdNet.Conn) {
 	server.CryptoHandler.ServerKEX(context.Background(), conn)
 
 	defer wg.Done()
@@ -87,7 +88,7 @@ func (server *GameServer) waitForConnections() {
 			server.ConnectionCount++
 			wg.Add(1)
 
-			go server.handleClient(&wg, conn)
+			go server.initClient(&wg, conn)
 		}
 	}
 

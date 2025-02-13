@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/stevezaluk/arcane-game/models"
 	"github.com/stevezaluk/mtgjson-models/user"
 	"net"
 )
@@ -78,4 +79,25 @@ func NewPlayer(user *user.User, library *DeckObject, conn net.Conn) *Player {
 	player.Hand = hand
 
 	return player
+}
+
+/*
+Protobuf - Convert a Player object to it's protobuf representation
+*/
+func (player *Player) Protobuf() *models.Player {
+	return &models.Player{
+		Email:              player.User.Email,
+		Deck:               player.Library.Protobuf(),
+		Graveyard:          player.Graveyard.Protobuf(),
+		Hand:               player.Hand.Protobuf(),
+		LifeTotal:          int64(player.LifeTotal),
+		CommanderDamage:    int64(player.CommanderDamage),
+		PoisonCounters:     int64(player.PoisonCounters),
+		EnergyCounters:     int64(player.EnergyCounters),
+		ExperienceCounters: int64(player.ExperienceCounters),
+		IsMonarch:          player.IsMonarch,
+		IsGameOwner:        player.IsGameOwner,
+		CurrentPhase:       player.CurrentPhase,
+		CurrentStep:        player.CurrentStep,
+	}
 }

@@ -1,6 +1,9 @@
 package game
 
-import "github.com/stevezaluk/mtgjson-models/user"
+import (
+	"github.com/stevezaluk/arcane-game/models"
+	"github.com/stevezaluk/mtgjson-models/user"
+)
 
 const (
 	BattlefieldZoneId = "zone:battlefield"
@@ -26,20 +29,6 @@ type Zone struct {
 }
 
 /*
-All - Return all the cards currently placed within the Zone
-*/
-func (zone *Zone) All() []*CardObject {
-	return zone.cards
-}
-
-/*
-Size - Return the number of cards within the Zone
-*/
-func (zone *Zone) Size() int {
-	return len(zone.cards)
-}
-
-/*
 NewZone - A constructor provided for creating a new Zone. An owner and isShared can not be declared as once,
 as if a Zone is shared then it cannot have an owner
 */
@@ -55,4 +44,37 @@ func NewZone(zoneId string, owner *user.User, isPublic bool, isShared bool, isOr
 		IsShared:  isShared,
 		IsOrdered: isOrdered,
 	}
+}
+
+/*
+Protobuf - Convert a Zone into it's protobuf representation
+*/
+func (zone *Zone) Protobuf() *models.Zone {
+	var cards []*models.CardObject
+	for _, card := range zone.cards {
+		cards = append(cards, card.Protobuf())
+	}
+
+	return &models.Zone{
+		ZoneId:    zone.ZoneId,
+		Owner:     zone.Owner.Email,
+		Cards:     cards,
+		IsPublic:  zone.IsPublic,
+		IsShared:  zone.IsShared,
+		IsOrdered: zone.IsOrdered,
+	}
+}
+
+/*
+All - Return all the cards currently placed within the Zone
+*/
+func (zone *Zone) All() []*CardObject {
+	return zone.cards
+}
+
+/*
+Size - Return the number of cards within the Zone
+*/
+func (zone *Zone) Size() int {
+	return len(zone.cards)
 }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package game;
+
+import "card.proto";
+
+option go_package = "github.com/stevezaluk/arcane-game/models";
+
+message Zone {
+  string zoneId = 1;
+  string owner = 2;
+  repeated CardObject cards = 3;
+
+  bool isPublic = 4;
+  bool isShared = 5;
+  bool isOrdered = 6;
+}

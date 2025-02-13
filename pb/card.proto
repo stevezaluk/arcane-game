@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package game;
+
+option go_package = "github.com/stevezaluk/arcane-game/models";
+
+message CardObject {
+  string name = 1;
+  string description = 2;
+  string type = 3;
+  repeated string subTypes = 4;
+  repeated string colorIdentity = 5;
+  int64 convertedManaCost = 6;
+  string toughness = 7;
+  string power = 8;
+  string image = 9;
+
+  bool isTapped = 10;
+  bool isFaceDown = 11;
+  bool wasPlayedThisTurn = 12;
+
+  string owner = 13;
+  string controller = 14;
+}

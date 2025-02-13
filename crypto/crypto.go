@@ -3,6 +3,7 @@ package crypto
 import (
 	"context"
 	"errors"
+	"github.com/stevezaluk/arcane-game/models"
 	arcaneNet "github.com/stevezaluk/arcane-game/net"
 	"log/slog"
 	"net"
@@ -11,6 +12,9 @@ import (
 
 // ErrKeyMismatch - Gets returned when the server/client fail to validate a key pair
 var ErrKeyMismatch = errors.New("key: There was a key mismatch between the server and the client (the negotiated checksum are not the same)")
+
+// ErrInvalidCryptoResponse - Gets returned when either the client or the server sends improperly formatted key during exchange
+var ErrInvalidCryptoResponse = errors.New("key: The response the client/server sent is malformed and cannot be parsed")
 
 /*
 EncryptionHandler - Contains logic for exchanging keys between the server and client, and
@@ -64,13 +68,28 @@ func (handler *EncryptionHandler) ServerKey() *KeyPair {
 }
 
 /*
-sendKey - Wrapper around the BasicWrite function. Sends a PEM encoded copy of the public key
+sendKey - Wrapper around the net.WriteArcaneMessage function. Sends a PEM encoded copy of the public key
 stored in the key pair to the connection passed in as an argument. This function should not
 be called directly, as there are specific handler functions for Server and Client key exchanges
 so it is not exported
 */
-func (handler *EncryptionHandler) sendKey(keyPair *KeyPair, conn net.Conn) error {
-	err := arcaneNet.BasicWrite(conn, keyPair.PublicKeyPEM())
+func (handler *EncryptionHandler) sendKey(keyPair *KeyPair, conn net.Conn, isClient bool) error {
+	identifier := "SERVER"
+	if isClient {
+		identifier = "CLIENT"
+	}
+
+	/*
+		Represents a message being sent to the client/server containing our key
+	*/
+	message := &models.ArcaneMessage{
+		Namespace:  models.ArcaneNamespace_CRYPTO_NAMESPACE,
+		Action:     "ACCEPT",
+		Identifier: identifier,
+		Values:     []string{keyPair.PublicKeyPEM()},
+	}
+
+	err := arcaneNet.WriteArcaneMessage(conn, message)
 	if err != nil {
 		return err
 	}
@@ -85,12 +104,18 @@ function should not be called directly, as there are specific handler functions 
 exchanges so it is not exported.
 */
 func (handler *EncryptionHandler) receiveKey(conn net.Conn) (*KeyPair, error) {
-	buffer, err := arcaneNet.BasicRead(conn)
+	message := &models.ArcaneMessage{}
+
+	err := arcaneNet.ReadArcaneMessage(conn, message)
 	if err != nil {
 		return nil, err
 	}
 
-	keyPair, err := FromPEMPublicKey(buffer)
+	if len(message.Values) == 0 || len(message.Values) < 1 {
+		return nil, ErrInvalidCryptoResponse
+	}
+
+	keyPair, err := FromPEMPublicKey(message.Values[0])
 	if err != nil {
 		return nil, err
 	}
@@ -104,12 +129,18 @@ key pairs do not match then it returns an ErrKeyMismatch and its calling functio
 cancels the context and kills the go routine
 */
 func (handler *EncryptionHandler) receiveKeyValidation(keyPair *KeyPair, conn net.Conn) error {
-	buffer, err := arcaneNet.BasicRead(conn)
+	message := &models.ArcaneMessage{}
+
+	err := arcaneNet.ReadArcaneMessage(conn, message)
 	if err != nil {
 		return err
 	}
 
-	if buffer != keyPair.PublicKeyChecksum() {
+	if len(message.Values) == 0 || len(message.Values) < 1 {
+		return ErrInvalidCryptoResponse
+	}
+
+	if message.Values[0] != keyPair.PublicKeyChecksum() {
 		return ErrKeyMismatch
 	}
 
@@ -120,8 +151,20 @@ func (handler *EncryptionHandler) receiveKeyValidation(keyPair *KeyPair, conn ne
 sendKeyValidation - Generate a checksum for the public key stored in the key pair that was passed as an argument
 and send it to the connection
 */
-func (handler *EncryptionHandler) sendKeyValidation(keyPair *KeyPair, conn net.Conn) error {
-	err := arcaneNet.BasicWrite(conn, keyPair.PublicKeyChecksum())
+func (handler *EncryptionHandler) sendKeyValidation(keyPair *KeyPair, conn net.Conn, isClient bool) error {
+	identifier := "SERVER"
+	if isClient {
+		identifier = "CLIENT"
+	}
+
+	message := &models.ArcaneMessage{
+		Namespace:  models.ArcaneNamespace_CRYPTO_NAMESPACE,
+		Action:     "VALIDATE",
+		Identifier: identifier,
+		Values:     []string{keyPair.PublicKeyChecksum()},
+	}
+
+	err := arcaneNet.WriteArcaneMessage(conn, message)
 	if err != nil {
 		return err
 	}
@@ -141,7 +184,7 @@ func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) 
 	slog.Info("Starting key exchange between client", "conn", conn.RemoteAddr(), "checkSum", handler.ServerKey().PublicKeyChecksum())
 
 	slog.Debug("Sending server side key pair", "conn", conn.RemoteAddr(), "checkSum", handler.ServerKey().PublicKeyChecksum())
-	err := handler.sendKey(handler.ServerKey(), conn)
+	err := handler.sendKey(handler.ServerKey(), conn, false)
 	if err != nil {
 		slog.Error("Failed to send key to client", "err", err)
 		return
@@ -162,7 +205,7 @@ func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) 
 	}
 
 	slog.Debug("Received client key pair", "conn", conn.RemoteAddr(), "checkSum", clientKeyPair.PublicKeyChecksum())
-	err = handler.sendKeyValidation(clientKeyPair, conn)
+	err = handler.sendKeyValidation(clientKeyPair, conn, true)
 	if err != nil {
 		slog.Error("Key validation for client key pair has failed", "err", err)
 	}
@@ -189,7 +232,7 @@ func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) 
 	}
 
 	slog.Debug("Received server key pair", "conn", conn.RemoteAddr(), "checkSum", serverKeyPair.PublicKeyChecksum())
-	err = handler.sendKeyValidation(serverKeyPair, conn)
+	err = handler.sendKeyValidation(serverKeyPair, conn, false)
 	if err != nil {
 		slog.Error("Key validation for server key pair has failed", "err", err)
 		return
@@ -198,7 +241,7 @@ func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) 
 	slog.Debug("Successfully validated server side key pair. Sending client side key pair", "conn", conn.RemoteAddr())
 	handler.serverKey = serverKeyPair
 
-	err = handler.sendKey(handler.ClientKey(), conn)
+	err = handler.sendKey(handler.ClientKey(), conn, true)
 	if err != nil {
 		slog.Error("Failed to send client key pair to server", "err", err)
 		return

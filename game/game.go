@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/stevezaluk/arcane-game/models"
 	"github.com/stevezaluk/mtgjson-models/user"
 	"github.com/stevezaluk/mtgjson-sdk-client/api"
 )
@@ -51,6 +52,26 @@ func NewGame(name string, gameMode string) *Game {
 		Exile:       exile,
 		Command:     command,
 		API:         api.New(),
+	}
+}
+
+/*
+Protobuf - Convert a Game to it's protobuf representation
+*/
+func (game *Game) Protobuf() *models.GameState {
+	var players map[string]*models.Player
+
+	for key, value := range game.Players {
+		players[key] = value.Protobuf()
+	}
+
+	return &models.GameState{
+		Name:        game.Name,
+		GameMode:    game.GameMode,
+		Players:     players,
+		Battlefield: game.Battlefield.Protobuf(),
+		Exile:       game.Exile.Protobuf(),
+		Command:     game.Command.Protobuf(),
 	}
 }
 
