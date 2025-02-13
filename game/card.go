@@ -23,6 +23,27 @@ type CardObject struct {
 }
 
 /*
+Protobuf - Convert a CardObject to it's protobuf representation
+*/
+func (card *CardObject) Protobuf() *models.CardObject {
+	return &models.CardObject{
+		Name:              card.Metadata.Name,
+		Description:       card.Metadata.Text,
+		Type:              card.Metadata.Type,
+		SubTypes:          card.Metadata.Subtypes,
+		ColorIdentity:     card.Metadata.ColorIdentity,
+		ConvertedManaCost: card.Metadata.ConvertedManaCost,
+		Toughness:         card.Metadata.Toughness,
+		Power:             card.Metadata.Power,
+		IsTapped:          card.IsTapped,
+		IsFaceDown:        card.IsFaceDown,
+		WasPlayedThisTurn: card.WasPlayedThisTurn,
+		Owner:             card.Owner.Email,
+		Controller:        card.Owner.Email,
+	}
+}
+
+/*
 Tap - Tap down the card object by setting IsTapped to true
 */
 func (card *CardObject) Tap() {
