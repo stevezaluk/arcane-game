@@ -11,8 +11,8 @@ message CardObject {
   repeated string subTypes = 4;
   repeated string colorIdentity = 5;
   int64 convertedManaCost = 6;
-  int64 toughness = 7;
-  int64 power = 8;
+  string toughness = 7;
+  string power = 8;
   string image = 9;
 
   bool isTapped = 10;
