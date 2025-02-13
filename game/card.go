@@ -64,7 +64,7 @@ func (card *CardObject) UnTap() {
 /*
 NewCardObject - Create a new pointer to a card object. Its Metadata, Owner, and ParentZone are required
 */
-func NewCardObject(metadata *card.CardSet, owner *Player, zone *Zone) *CardObject {
+func NewCardObject(metadata *card.CardSet, owner *user.User, zone *Zone) *CardObject {
 	return &CardObject{
 		Metadata:          metadata,
 		Owner:             owner,
