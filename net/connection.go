@@ -3,6 +3,7 @@ package net
 import (
 	"github.com/golang/protobuf/proto"
 	"github.com/stevezaluk/arcane-game/models"
+	"log/slog"
 	"net"
 )
 
@@ -75,4 +76,16 @@ WriteGameState - Write game state either from the server. Acts as a wrapper arou
 */
 func WriteGameState(conn net.Conn, state *models.GameState) error {
 	return basicWrite(conn, state)
+}
+
+/*
+CloseConnection - Close a client connection and log any errors that occur
+*/
+func CloseConnection(conn net.Conn) {
+	err := conn.Close()
+	if err != nil {
+		slog.Error("Failed to close client connection", "conn", conn.RemoteAddr(), "err", err.Error())
+	}
+
+	slog.Info("Closed client connection", "conn", conn.RemoteAddr())
 }
