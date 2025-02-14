@@ -3,6 +3,7 @@ package crypto
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/stevezaluk/arcane-game/models"
 	arcaneNet "github.com/stevezaluk/arcane-game/net"
 	"log/slog"
@@ -181,12 +182,36 @@ the key it has stored. If errors arise here they are logged, the connection is c
 go-routines are cancelled
 */
 func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) {
+	initMessage := &models.ArcaneMessage{}
+
+	slog.Info("Waiting for crypto initialization message from client", "conn", conn.RemoteAddr())
+	err := arcaneNet.ReadArcaneMessage(conn, initMessage)
+	if err != nil {
+		slog.Error("Failed to parse crypto initialization message. Either structure was incorrect or the read failed", "conn", conn.RemoteAddr(), "err", err.Error())
+		arcaneNet.CloseConnection(conn)
+		return
+	}
+	fmt.Println(initMessage)
+
+	if initMessage.Namespace != models.ArcaneNamespace_CRYPTO_NAMESPACE {
+		slog.Error("Crypto initialization message contained the wrong namespace. Connection was closed", "conn", conn.RemoteAddr())
+		arcaneNet.CloseConnection(conn)
+		return
+	}
+
+	if initMessage.Action != "INIT" {
+		slog.Error("Crypto initialization message contained the wrong action. Connection was closed", "conn", conn.RemoteAddr())
+		arcaneNet.CloseConnection(conn)
+		return
+	}
+
 	slog.Info("Starting key exchange between client", "conn", conn.RemoteAddr(), "checkSum", handler.ServerKey().PublicKeyChecksum())
 
 	slog.Debug("Sending server side key pair", "conn", conn.RemoteAddr(), "checkSum", handler.ServerKey().PublicKeyChecksum())
-	err := handler.sendKey(handler.ServerKey(), conn, false)
+	err = handler.sendKey(handler.ServerKey(), conn, false)
 	if err != nil {
 		slog.Error("Failed to send key to client", "err", err)
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
@@ -194,6 +219,7 @@ func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) 
 	err = handler.receiveKeyValidation(handler.ServerKey(), conn)
 	if err != nil {
 		slog.Error("Key validation for server key pair has failed", "err", err)
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
@@ -201,6 +227,7 @@ func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) 
 	clientKeyPair, err := handler.receiveKey(conn)
 	if err != nil {
 		slog.Error("Failed to receive key from client", "err", err)
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
@@ -208,6 +235,8 @@ func (handler *EncryptionHandler) ServerKEX(ctx context.Context, conn net.Conn) 
 	err = handler.sendKeyValidation(clientKeyPair, conn, true)
 	if err != nil {
 		slog.Error("Key validation for client key pair has failed", "err", err)
+		arcaneNet.CloseConnection(conn)
+		return
 	}
 
 	slog.Debug("Successfully validated client key pair", "conn", conn.RemoteAddr(), "checkSum", clientKeyPair.PublicKeyChecksum())
@@ -224,10 +253,23 @@ they are logged, the connection is cancelled, and associating go-routines are ca
 func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) {
 	slog.Info("Starting key exchange between server", "conn", conn.RemoteAddr())
 
+	initMessage := &models.ArcaneMessage{
+		Namespace: models.ArcaneNamespace_CRYPTO_NAMESPACE,
+		Action:    "INIT",
+	}
+
+	err := arcaneNet.WriteArcaneMessage(conn, initMessage)
+	if err != nil {
+		slog.Error("Failed to send crypto initialization message to the server", "conn", conn.RemoteAddr(), "err", err.Error())
+		arcaneNet.CloseConnection(conn)
+		return
+	}
+
 	slog.Debug("Waiting for server side key pair", "conn", conn.RemoteAddr())
 	serverKeyPair, err := handler.receiveKey(conn)
 	if err != nil {
 		slog.Error("Failed to receive key from server", "err", err.Error())
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
@@ -235,6 +277,7 @@ func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) 
 	err = handler.sendKeyValidation(serverKeyPair, conn, false)
 	if err != nil {
 		slog.Error("Key validation for server key pair has failed", "err", err)
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
@@ -244,6 +287,7 @@ func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) 
 	err = handler.sendKey(handler.ClientKey(), conn, true)
 	if err != nil {
 		slog.Error("Failed to send client key pair to server", "err", err)
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
@@ -251,6 +295,7 @@ func (handler *EncryptionHandler) ClientKEX(ctx context.Context, conn net.Conn) 
 	err = handler.receiveKeyValidation(handler.ClientKey(), conn)
 	if err != nil {
 		slog.Error("Key validation for client key pair has failed", "err", err)
+		arcaneNet.CloseConnection(conn)
 		return
 	}
 
