@@ -36,9 +36,10 @@ func Connection() *ConnectionOptions {
 }
 
 /*
-FromConfig - Fills the ConnectionOptions struct with values pulled from Viper
+FromConfig - Fills the ConnectionOptions struct with values pulled from Viper. Overwrites an pre-existing
+values
 */
-func FromConfig() *ConnectionOptions {
+func (opts *ConnectionOptions) FromConfig() *ConnectionOptions {
 	return &ConnectionOptions{
 		MaxConnectionCount:     viper.GetUint32("server.max_connections"),
 		ClientTimeout:          viper.GetDuration("server.client_timeout"),

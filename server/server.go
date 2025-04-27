@@ -74,7 +74,7 @@ func FromConfig() *Server {
 	return New(
 		viper.GetInt("server.port"),
 		NewLoggerFromConfig(),
-		options.FromConfig(),
+		options.Connection().FromConfig(),
 	)
 }
 
