@@ -14,4 +14,13 @@ type ConnectionOptions struct {
 
 	// WaitConnectionsTimeout - The number of seconds the server should wait to accept new clients before closing new connections
 	WaitConnectionsTimeout *time.Duration
+
+	// EnforceACLs - If set to true, then enforce the lists defined in ConnectionOptions.Whitelist and ConnectionOptions.Blacklist
+	EnforceACLs bool
+
+	// Whitelist - Explicitly allow the IP Addresses defined in this slice
+	Whitelist []string
+
+	// Blacklist - Explicitly block the IP Addresses defined in this slice
+	Blacklist []string
 }
