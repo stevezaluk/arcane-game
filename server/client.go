@@ -1,7 +1,6 @@
 package server
 
 import (
-	"github.com/stevezaluk/arcane-game/crypto"
 	"net"
 )
 
@@ -17,7 +16,6 @@ type Client struct {
 	conn *net.TCPConn
 
 	// cryptoHandler - Provides logic for generating encryption keys
-	cryptoHandler *crypto.EncryptionHandler
 }
 
 /*
