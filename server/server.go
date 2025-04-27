@@ -42,7 +42,7 @@ type Server struct {
 
 /*
 New - Constructs the server and returns a pointer to it. Log is expected to be not nil,
-and fully initialized
+and fully initialized with server.NewLogger or server.NewLoggerFromConfig
 */
 func New(port int32, log *Log) *Server {
 	return &Server{
