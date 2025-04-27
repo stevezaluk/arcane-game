@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/crypto"
 	"net"
+	"strconv"
 )
 
 /*
@@ -15,6 +16,8 @@ type IServer interface {
 
 	// Log - Returns a pointer to the Logger structure that the server is using
 	Log() *Log
+
+	listen() error
 }
 
 /*
@@ -77,4 +80,22 @@ Log - Returns a pointer to the Logger structure that the server is using
 */
 func (server *Server) Log() *Log {
 	return server.log
+}
+
+/*
+listen - Creates a new raw TCP socket and instructs the server to start listening on the port specified in
+server.Port. New connections will not be accepted until a subsequent call to waitForConnections is made
+*/
+func (server *Server) listen() error {
+	sock, err := net.Listen("tcp",
+		"127.0.0.1:"+strconv.Itoa(server.Port),
+	)
+
+	if err != nil {
+		return err
+	}
+
+	server.sock = &sock
+
+	return nil
 }
