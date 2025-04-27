@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/spf13/viper"
-	"github.com/stevezaluk/arcane-game/crypto"
 	"github.com/stevezaluk/arcane-game/options"
 	"log/slog"
 	"net"
@@ -37,7 +36,6 @@ type Server struct {
 	sock *net.Listener
 
 	// cryptoHandler - Provides logic for handling crypto related operations like generating encryption keys
-	cryptoHandler *crypto.EncryptionHandler
 
 	// log - Provides logic for creating and writing log files
 	log *Log
