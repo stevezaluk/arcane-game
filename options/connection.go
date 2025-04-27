@@ -1,4 +1,4 @@
-package server
+package options
 
 import (
 	"github.com/spf13/viper"
