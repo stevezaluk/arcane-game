@@ -52,7 +52,8 @@ func FromConfig() *ConnectionOptions {
 /*
 SetMaxConnectionCount - Allows you to define the maximum amount of successful connections the server
 should accept. If this is not set, then the default value of 4 is used. This includes the "Game Leader",
-colloquially called the "Host".
+colloquially called the "Host". A successful connection is defined as a client that completes key exchange
+before the ClientTimeout is fired.
 
 An upper limit for this is not set, so there truly is not limit to what you can set this number to (aside from the
 32-bit unsigned integer limit). I recommend setting this to 6 connections (or under) as feasibly there is no way to
