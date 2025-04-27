@@ -54,7 +54,8 @@ func New(port int32, log *Log) *Server {
 }
 
 /*
-FromConfig - Constructs a server using config values provided by viper
+FromConfig - Constructs a server using config values provided by viper. Automatically creates a server.Log
+structure using the log.path value provided by Viper
 */
 func FromConfig() *Server {
 	return New(
@@ -64,7 +65,8 @@ func FromConfig() *Server {
 }
 
 /*
-Sock - Returns a pointer to the net.Listener structure that the server uses
+Sock - Returns a pointer to the net.Listener structure that the server uses. This will return nil
+if it is called before server.Listen has been called
 */
 func (server *Server) Sock() *net.Listener {
 	return server.sock
