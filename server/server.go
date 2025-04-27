@@ -17,6 +17,7 @@ type IServer interface {
 	// Log - Returns a pointer to the Logger structure that the server is using
 	Log() *Log
 
+	// listen - Creates a new raw TCP socket and instructs the server to start listening on the port specified in server.Port
 	listen() error
 }
 
