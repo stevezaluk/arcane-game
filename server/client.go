@@ -14,7 +14,7 @@ type Client struct {
 	IPAddress string
 
 	// Conn - The connection structure used for sending and receiving messages from the client
-	conn net.Conn
+	conn *net.TCPConn
 
 	// cryptoHandler - Provides logic for generating encryption keys
 	cryptoHandler *crypto.EncryptionHandler
@@ -24,7 +24,7 @@ type Client struct {
 NewClient - A constructor for the Client structure. Creates new Client structure
 and returns a pointer to it
 */
-func NewClient(conn net.Conn) *Client {
+func NewClient(conn *net.TCPConn) *Client {
 	return &Client{
 		IPAddress: conn.RemoteAddr().String(),
 		conn:      conn,
