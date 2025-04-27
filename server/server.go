@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/crypto"
 	"github.com/stevezaluk/arcane-game/options"
+	"log/slog"
 	"net"
 	"strconv"
 )
@@ -101,7 +102,7 @@ func (server *Server) SetOptions(opts *options.ConnectionOptions) {
 
 /*
 listen - Creates a new raw TCP socket and instructs the server to start listening on the port specified in
-server.Port. New connections will not be accepted until a subsequent call to waitForConnections is made
+server.Port. New connections will not be accepted until a subsequent call to acceptConnections is made
 */
 func (server *Server) listen() error {
 	sock, err := net.Listen("tcp",
@@ -115,4 +116,26 @@ func (server *Server) listen() error {
 	server.sock = &sock
 
 	return nil
+}
+
+/*
+Start - Primary entrypoint for starting the server. First the lobby is initialized and the server enables listening
+on the TCP socket that is created with Server.listen. After listening is enabled (assuming this does not return an
+error), the server starts waiting for connections, and processes them. If EnableACLs is set to true here
+then the server will evaluate the incoming client IP Address to determine if they are allowed to connect to the server
+
+After the client passes IP Address evaluation (assuming it is enabled) the server initiates the key exchange process
+to establish secure, end-to-end encrypted communication. Server/Client keys are not persisted on disk and are unique
+to the session. If EnableSecureConnections is enabled here then the no key exchange is performed for any users, and
+they are immediately sent to the Lobby for pre-user processing (see the game.Lobby structure for a diagram of this)
+*/
+func (server *Server) Start() {
+	slog.Info("Starting game server", "port", server.Port)
+	err := server.listen()
+	if err != nil {
+		slog.Error("Failed to start listening for connections", "err", err.Error())
+		return
+	}
+
+	slog.Info("Server now waiting for client connections", "maxConnections", server.opts.MaxConnectionCount)
 }
