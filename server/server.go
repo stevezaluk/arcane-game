@@ -31,7 +31,7 @@ type Server struct {
 	log *Log
 
 	// Port - The network port that the server is listening for connections on
-	Port int32
+	Port int
 
 	// ConnectionCount - A 32-bit integer for tracking the number of connections to the server
 	ConnectionCount int32
@@ -44,7 +44,7 @@ type Server struct {
 New - Constructs the server and returns a pointer to it. Log is expected to be not nil,
 and fully initialized with server.NewLogger or server.NewLoggerFromConfig
 */
-func New(port int32, log *Log) *Server {
+func New(port int, log *Log) *Server {
 	return &Server{
 		log:             log,
 		Port:            port,
@@ -59,7 +59,7 @@ structure using the log.path value provided by Viper
 */
 func FromConfig() *Server {
 	return New(
-		viper.GetInt32("server.port"),
+		viper.GetInt("server.port"),
 		NewLoggerFromConfig(),
 	)
 }
