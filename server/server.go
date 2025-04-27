@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/crypto"
+	"github.com/stevezaluk/arcane-game/options"
 	"net"
 	"strconv"
 )
@@ -17,6 +18,9 @@ type IServer interface {
 	// Log - Returns a pointer to the Logger structure that the server is using
 	Log() *Log
 
+	// SetOptions - Sets the connection options for the server
+	SetOptions(*options.ConnectionOptions)
+
 	// listen - Creates a new raw TCP socket and instructs the server to start listening on the port specified in server.Port
 	listen() error
 }
@@ -25,6 +29,9 @@ type IServer interface {
 Server - The primary construct used for handling user connections and providing logging
 */
 type Server struct {
+	// opts - The user-selected options used for new Connections
+	opts *options.ConnectionOptions
+
 	// sock - The socket used for establishing connections between the server and its clients
 	sock *net.Listener
 
@@ -48,8 +55,9 @@ type Server struct {
 New - Constructs the server and returns a pointer to it. Log is expected to be not nil,
 and fully initialized with server.NewLogger or server.NewLoggerFromConfig
 */
-func New(port int, log *Log) *Server {
+func New(port int, log *Log, opts *options.ConnectionOptions) *Server {
 	return &Server{
+		opts:            opts,
 		log:             log,
 		Port:            port,
 		ConnectionCount: 0,
@@ -65,6 +73,7 @@ func FromConfig() *Server {
 	return New(
 		viper.GetInt("server.port"),
 		NewLoggerFromConfig(),
+		options.FromConfig(),
 	)
 }
 
@@ -81,6 +90,13 @@ Log - Returns a pointer to the Logger structure that the server is using
 */
 func (server *Server) Log() *Log {
 	return server.log
+}
+
+/*
+SetOptions - Sets the connection options for the server
+*/
+func (server *Server) SetOptions(opts *options.ConnectionOptions) {
+	server.opts = opts
 }
 
 /*
