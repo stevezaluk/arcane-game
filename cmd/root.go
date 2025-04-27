@@ -19,14 +19,11 @@ package cmd
 import (
 	"fmt"
 	"github.com/mitchellh/go-homedir"
-	slogmulti "github.com/samber/slog-multi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/game"
-	"github.com/stevezaluk/mtgjson-sdk-client/config"
 	"log/slog"
 	"os"
-	"time"
 )
 
 const (
@@ -66,7 +63,6 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(initLogger)
 
 	/*
 		General CLI Flags
@@ -118,45 +114,29 @@ func init() {
 }
 
 /*
-initConfig - Load the JSON config file from the default location and register its contents as viper keys
+initConfig - Initialize viper with values from config files or environmental variables. Defaults
+are not set here as CLI arguments are bound to viper config values. These provide defaults. Should
+not be called directly, automatically called as a part of viper's initialization stack
 */
 func initConfig() {
-	if cfgFile == "" {
+	if cfgFile != "" {
+		viper.SetConfigFile(cfgFile)
+	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println("Error finding home directory:", err.Error())
+			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		cfgFile = home + defaultConfigPath + "/" + defaultConfigName
+		viper.SetConfigType("json")
+		viper.AddConfigPath(home + "/.config/arcane-game-server/")
+		viper.SetConfigName("config.json")
 	}
 
-	err := config.ReadConfigFile(cfgFile)
-	if err != nil {
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println("Error reading config file:", err.Error())
 		os.Exit(1)
 	}
-}
-
-// this is going to be completely externalized in a separate MR
-func initLogger() {
-	buildFileName := func() string {
-		timestamp := time.Now().Format(time.RFC3339)
-		return viper.GetString("log.path") + "/arcane-" + timestamp + ".json"
-	}
-
-	file, err := os.OpenFile(buildFileName(), os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println("Error initializing logger:", err.Error())
-		os.Exit(1)
-	}
-
-	handler := slogmulti.Fanout(
-		slog.NewJSONHandler(file, nil),
-		slog.NewTextHandler(os.Stdout, nil))
-
-	slog.SetDefault(slog.New(handler))
-
-	viper.Set("log.fileRef", file)
-	viper.Set("log.file", file.Name())
 }
