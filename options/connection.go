@@ -32,7 +32,14 @@ type ConnectionOptions struct {
 Connection - Returns an empty ConnectionOptions struct
 */
 func Connection() *ConnectionOptions {
-	return &ConnectionOptions{}
+	return &ConnectionOptions{
+		MaxConnectionCount:     4,
+		ClientTimeout:          30,
+		WaitConnectionsTimeout: 120,
+		EnforceACLs:            false,
+		Whitelist:              []string{},
+		Blacklist:              []string{},
+	}
 }
 
 /*
