@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/stevezaluk/arcane-game/game"
 	"os"
 )
 
@@ -30,21 +29,7 @@ var clientCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		gameClient, err := game.NewClient()
-		if err != nil {
-			fmt.Println("Error creating game client:", err.Error())
-			return
-		}
-
-		err = gameClient.Connect(
-			viper.GetString("client.server_hostname"),
-			viper.GetInt("client.server_port"),
-		)
-
-		if err != nil {
-			fmt.Println("Error connecting client to game server:", err.Error())
-			return
-		}
+		fmt.Println("Error: Client simulation not implemented")
 	},
 }
 
