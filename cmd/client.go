@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/game"
-	"log/slog"
+	"os"
 )
 
 // clientCmd represents the client command
@@ -29,27 +29,41 @@ var clientCmd = &cobra.Command{
 	Use:   "client",
 	Short: "A brief description of your command",
 	Long:  ``,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		if viper.GetBool("verbose") { // this is not working
-			slog.SetLogLoggerLevel(slog.LevelDebug)
-		}
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		gameClient, err := game.NewClient()
 		if err != nil {
-			fmt.Println("Error while creating game client", err.Error())
+			fmt.Println("Error creating game client:", err.Error())
 			return
 		}
 
-		err = gameClient.Connect(viper.GetString("client.server_ip"), viper.GetInt("client.server_port"))
+		err = gameClient.Connect(
+			viper.GetString("client.server_hostname"),
+			viper.GetInt("client.server_port"),
+		)
+
 		if err != nil {
-			fmt.Println("Error while connecting client to game server", err.Error())
+			fmt.Println("Error connecting client to game server:", err.Error())
 			return
 		}
-
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(clientCmd)
+
+	/*
+		Connection CLI Flags
+	*/
+	clientCmd.Flags().String("client.server_hostname", "127.0.0.1", "The hostname of the Arcane Game server you want to connect to")
+	clientCmd.Flags().Int("client.server_port", 44444, "The port of the Arcane Game Server you want to connect to")
+
+	/*
+		Iterates through each command and binds there long values to viper values
+	*/
+	err := viper.BindPFlags(clientCmd.Flags())
+	if err != nil {
+		fmt.Println("Error binding Cobra flags to viper: ", err.Error())
+		os.Exit(1)
+	}
+
 }
