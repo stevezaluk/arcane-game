@@ -13,7 +13,7 @@ IServer - The interface that the Server structure implements
 */
 type IServer interface {
 	// Sock - Returns a pointer to the net.Listener structure that the server uses
-	Sock() *net.Listener
+	Sock() *net.TCPListener
 
 	// Log - Returns a pointer to the Logger structure that the server is using
 	Log() *Log
@@ -33,7 +33,7 @@ type Server struct {
 	opts *options.ConnectionOptions
 
 	// sock - The socket used for establishing connections between the server and its clients
-	sock *net.Listener
+	sock *net.TCPListener
 
 	// cryptoHandler - Provides logic for handling crypto related operations like generating encryption keys
 
@@ -44,7 +44,7 @@ type Server struct {
 	Port int
 
 	// ConnectionCount - A 32-bit integer for tracking the number of connections to the server
-	ConnectionCount int32
+	ConnectionCount uint32
 
 	// IsClosed - Determines if new connections to the server has been closed
 	IsClosed bool
@@ -80,7 +80,7 @@ func FromConfig() *Server {
 Sock - Returns a pointer to the net.Listener structure that the server uses. This will return nil
 if it is called before server.Listen has been called
 */
-func (server *Server) Sock() *net.Listener {
+func (server *Server) Sock() *net.TCPListener {
 	return server.sock
 }
 
@@ -111,7 +111,15 @@ func (server *Server) listen() error {
 		return err
 	}
 
-	server.sock = &sock
+	/*
+		Were casting this here as due to the network flag that was specified
+		in net.Listen guarantee's that we will get a net.TCPListener object
+		returned to us.
+
+		This ensures that we can store a pointer for this struct (to avoid copying),
+		as net.Listen returns net.Listener which is an interface
+	*/
+	server.sock = sock.(*net.TCPListener)
 
 	return nil
 }
