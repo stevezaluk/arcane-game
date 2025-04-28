@@ -44,13 +44,6 @@ side infrastructure of the Arcane Game Server.`,
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := game.NewServer(viper.GetString("server.lobby_name"), viper.GetString("server.game_mode"))
-		if err != nil {
-			fmt.Println("Error creating game server:", err.Error())
-			os.Exit(1)
-		}
-
-		server.Start()
 	},
 }
 
@@ -86,6 +79,7 @@ func init() {
 	*/
 	rootCmd.Flags().IntP("server.port", "p", 44444, "The port that the game server should listen for connections on")
 	rootCmd.Flags().Int("server.max_connections", 4, "The maximum number of connections the server will accept before closing the lobby. Effectively acts a max player count")
+	rootCmd.Flags().Bool("server.secure_connections", true, "Whether or not to use secure connections (end-to-end encryption")
 
 	/*
 		MTGJSON API Flags
@@ -101,7 +95,6 @@ func init() {
 	*/
 	rootCmd.Flags().String("crypto.key_algorithm", "rsa", "The default key exchange algorithm used for creating end-to-end encrypted connections. Clients must also use this algorithm")
 	rootCmd.Flags().Int("crypto.key_size", 4096, "The default size of the key to use for server and client encryption keys")
-	rootCmd.Flags().Bool("crypto.bypass_kex", false, "Allows user connections to bypass key exchange, effectively removing end-to-end encryption")
 
 	/*
 		Iterates through each command and binds there long values to viper values
