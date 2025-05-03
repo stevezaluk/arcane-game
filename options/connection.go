@@ -65,7 +65,7 @@ before the ClientTimeout is fired.
 
 An upper limit for this is not set, so there truly is not limit to what you can set this number to (aside from the
 32-bit unsigned integer limit). I recommend setting this to 6 connections (or under) as feasibly there is no way to
-play a game of Magic: The Gathering with more than 6 people.
+play a game of Magic: The Gathering (in a reasonable amount of time) with more than 6 people.
 */
 func (opts *ConnectionOptions) SetMaxConnectionCount(max uint32) *ConnectionOptions {
 	opts.MaxConnectionCount = max
