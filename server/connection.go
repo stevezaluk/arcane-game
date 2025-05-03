@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"net"
 )
 
@@ -27,4 +28,23 @@ func NewConnection(conn *net.TCPConn) *Connection {
 		IPAddress: conn.RemoteAddr().String(),
 		conn:      conn,
 	}
+}
+
+/*
+Disconnect - Disconnects the client from the server
+*/
+func (connection *Connection) Disconnect() error {
+	err := connection.conn.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/*
+Initialize - Instructs the connection to perform key negotiation with the server
+*/
+func (connection *Connection) Initialize(ctx context.Context) error {
+	return nil
 }
