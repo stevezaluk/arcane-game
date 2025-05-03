@@ -5,10 +5,10 @@ import (
 )
 
 /*
-Client - A representation of a client connecting to the server. Processes Key Exchange between
+Connection - A representation of a client connecting to the server. Processes Key Exchange between
 the client and the server and holds connection information for the client
 */
-type Client struct {
+type Connection struct {
 	// IPAddress - The remote IP Address of the client connection
 	IPAddress string
 
@@ -19,11 +19,11 @@ type Client struct {
 }
 
 /*
-NewClient - A constructor for the Client structure. Creates new Client structure
+NewConnection - A constructor for the Client structure. Creates new Client structure
 and returns a pointer to it
 */
-func NewClient(conn *net.TCPConn) *Client {
-	return &Client{
+func NewConnection(conn *net.TCPConn) *Connection {
+	return &Connection{
 		IPAddress: conn.RemoteAddr().String(),
 		conn:      conn,
 	}
