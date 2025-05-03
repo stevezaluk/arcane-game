@@ -94,7 +94,7 @@ func (key *KeyPair) Encrypt(message []byte) ([]byte, error) {
 }
 
 /*
-Decrypt - Decypts a byte slice using the private key stored within the key pair. If no private
+Decrypt - Decrypts a byte slice using the private key stored within the key pair. If no private
 key is specified here, then nil is returned and an un-named error is returned outlining this
 problem.
 
@@ -106,12 +106,14 @@ func (key *KeyPair) Decrypt(message []byte) ([]byte, error) {
 		return nil, errors.New("no private key specified for use with decryption")
 	}
 
-	cipherBytes, err := base64.URLEncoding.DecodeString(string(message))
+	cipherBytes := make([]byte, base64.URLEncoding.DecodedLen(len(message)))
+
+	n, err := base64.URLEncoding.Decode(cipherBytes, message)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := key.privateKey.Decrypt(rand.Reader, cipherBytes, &rsa.OAEPOptions{Hash: crypto.SHA256})
+	data, err := key.privateKey.Decrypt(rand.Reader, cipherBytes[:n], &rsa.OAEPOptions{Hash: crypto.SHA256})
 	if err != nil {
 		return nil, err
 	}
