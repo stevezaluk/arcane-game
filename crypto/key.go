@@ -26,24 +26,13 @@ type KeyPair struct {
 FromPublicKey - Takes an RSA public key and returns a Key Pair for it. Used when accepting the clients
 public key
 */
-func FromPublicKey(public rsa.PublicKey) *KeyPair {
-	return &KeyPair{publicKey: public}
-}
-
-/*
-FromPrivateKey - Takes a pointer to an RSA private key and constructs a KeyPair structure from it.
-If key validation fails, then a nil pointer along with the error will be returned
-*/
-func FromPrivateKey(private *rsa.PrivateKey) (*KeyPair, error) {
-	err := private.Validate()
+func FromPublicKey(public []byte) (*KeyPair, error) {
+	publicKey, err := x509.ParsePKIXPublicKey(public)
 	if err != nil {
 		return nil, err
 	}
 
-	return &KeyPair{
-		privateKey: private,
-		publicKey:  private.PublicKey,
-	}, nil
+	return &KeyPair{publicKey: *publicKey.(*rsa.PublicKey)}, nil
 }
 
 /*
@@ -60,7 +49,15 @@ func GenerateKey(size int) (*KeyPair, error) {
 		return nil, err
 	}
 
-	return FromPrivateKey(privateKey)
+	err = privateKey.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	return &KeyPair{
+		privateKey: privateKey,
+		publicKey:  privateKey.PublicKey,
+	}, nil
 }
 
 /*
@@ -84,7 +81,7 @@ func (key *KeyPair) Checksum() ([32]byte, error) {
 	if err != nil {
 		return [32]byte{}, err
 	}
-	
+
 	return sha256.Sum256(content), nil
 }
 
