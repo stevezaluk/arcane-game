@@ -3,7 +3,6 @@ module github.com/stevezaluk/arcane-game
 go 1.23.2
 
 require (
-	github.com/golang/protobuf v1.5.3
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/samber/slog-multi v1.3.3
 	github.com/spf13/cobra v1.8.1
