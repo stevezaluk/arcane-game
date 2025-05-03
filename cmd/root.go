@@ -21,7 +21,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/stevezaluk/arcane-game/game"
+	"github.com/stevezaluk/arcane-game-server/game"
 	"log/slog"
 	"os"
 )

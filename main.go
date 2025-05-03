@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-import "github.com/stevezaluk/arcane-game/cmd"
+import "github.com/stevezaluk/arcane-game-server/cmd"
 
 func main() {
 	cmd.Execute()
