@@ -64,6 +64,10 @@ func GenerateKey(size int) (*KeyPair, error) {
 MarshalKey - Marshal's a public key to DER encoded bytes so that it can be transferred efficiently
 */
 func (key *KeyPair) MarshalKey() ([]byte, error) {
+	if key.publicKey.N.BitLen() == 0 {
+		return nil, errors.New("no public key specified for use with PKIX marshalling")
+	}
+
 	content, err := x509.MarshalPKIXPublicKey(&key.publicKey)
 	if err != nil {
 		return nil, err
@@ -77,6 +81,10 @@ Checksum - Returns a byte array representing the SHA-256 checksum of the public 
 that keys have not been modified during transfer
 */
 func (key *KeyPair) Checksum() ([32]byte, error) {
+	if key.publicKey.N.BitLen() == 0 {
+		return [32]byte{}, errors.New("no public key specified for use with SHA-256 checksum")
+	}
+
 	content, err := key.MarshalKey()
 	if err != nil {
 		return [32]byte{}, err
