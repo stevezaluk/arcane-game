@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/stevezaluk/arcane-game/models"
+	"github.com/stevezaluk/arcane-game-server/models"
 	"github.com/stevezaluk/mtgjson-models/user"
 	"net"
 )
