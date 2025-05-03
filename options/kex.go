@@ -75,7 +75,7 @@ to the next phase of Key Exchange. If this is set to true, then the server will 
 
 Generally, this should stay on as it ensures that the key has not been modified during transmission. However, if the
 server.Server is running in an environment where it wants incredibly low latency and minimal chatter between client and
-server, then it can be disabled. No sensitive information is exposed between server/client communications aside from the
+server, then it can be disabled. No sensitive information is exposed in server/client communications aside from the
 player's email address
 */
 func (opts *KEXOptions) SetValidateKeys(validate bool) *KEXOptions {
