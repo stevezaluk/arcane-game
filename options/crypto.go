@@ -14,6 +14,9 @@ const (
 )
 
 type CryptoOptions struct {
+	// SecureConnections - If set to true, it forces clients to perform key exchange between the server and the client
+	SecureConnections bool
+
 	// ValidateKeys - Controls if the server and client should validate there keys with checksum's to ensure integrity
 	ValidateKeys bool
 
@@ -45,6 +48,20 @@ func (opts *CryptoOptions) FromConfig() *CryptoOptions {
 		EncryptionAlgorithm: KEXRSA, // this is always set to RSA, as others are not supported at the moment
 		KeySize:             viper.GetUint32("kex.key_size"),
 	}
+}
+
+/*
+SetSecureConnections - Allows you to determine if clients should be forced to exchange keys with the clients.
+Determines if end-to-end encryption is enforced on the client. If set to true, then the client will be forced
+to generate a key and exchange it with the server before ConnectionOptions.ClientTimeout expires. If they fail
+to do so, either through errors during the process or if ConnectionOptions.ClientTimeout expires, then there
+connection is forcibly evicted from the server. Assuming the client fails key-exchange, they will still be
+allowed to re-connect and re-attempt key-exchange
+*/
+func (opts *CryptoOptions) SetSecureConnections(secured bool) *CryptoOptions {
+	opts.SecureConnections = secured
+
+	return opts
 }
 
 /*

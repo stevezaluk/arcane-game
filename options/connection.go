@@ -9,9 +9,6 @@ import (
 ConnectionOptions - A structure for tracking parameterized options to use relating to client and server connections
 */
 type ConnectionOptions struct {
-	// SecureConnections - If set to true, it forces clients to perform key exchange between the server and the client
-	SecureConnections bool
-
 	// MaxConnectionCount - The maximum amount of successful connections the server will accept
 	MaxConnectionCount uint32
 
@@ -36,7 +33,6 @@ Connection - Returns an empty ConnectionOptions struct
 */
 func Connection() *ConnectionOptions {
 	return &ConnectionOptions{
-		SecureConnections:      true,
 		MaxConnectionCount:     4,
 		ClientTimeout:          30,
 		WaitConnectionsTimeout: 120,
@@ -52,7 +48,6 @@ values
 */
 func (opts *ConnectionOptions) FromConfig() *ConnectionOptions {
 	return &ConnectionOptions{
-		SecureConnections:      viper.GetBool("server.secure_connections"),
 		MaxConnectionCount:     viper.GetUint32("server.max_connections"),
 		ClientTimeout:          viper.GetDuration("server.client_timeout"),
 		WaitConnectionsTimeout: viper.GetDuration("server.wait_connections_timeout"),
@@ -60,20 +55,6 @@ func (opts *ConnectionOptions) FromConfig() *ConnectionOptions {
 		Whitelist:              viper.GetStringSlice("server.whitelist"),
 		Blacklist:              viper.GetStringSlice("server.blacklist"),
 	}
-}
-
-/*
-SetSecureConnections - Allows you to determine if clients should be forced to exchange keys with the clients.
-Determines if end-to-end encryption is enforced on the client. If set to true, then the client will be forced
-to generate a key and exchange it with the server before ConnectionOptions.ClientTimeout expires. If they fail
-to do so, either through errors during the process or if ConnectionOptions.ClientTimeout expires, then there
-connection is forcibly evicted from the server. Assuming the client fails key-exchange, they will still be
-allowed to re-connect and re-attempt key-exchange
-*/
-func (opts *ConnectionOptions) SetSecureConnections(secured bool) *ConnectionOptions {
-	opts.SecureConnections = secured
-
-	return opts
 }
 
 /*
