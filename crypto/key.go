@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"errors"
 )
@@ -60,6 +61,31 @@ func GenerateKey(size int) (*KeyPair, error) {
 	}
 
 	return FromPrivateKey(privateKey)
+}
+
+/*
+Marshal - Marshal's a public key to DER encoded bytes so that it can be transferred efficiently
+*/
+func (key *KeyPair) Marshal() ([]byte, error) {
+	content, err := x509.MarshalPKIXPublicKey(&key.publicKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return content, nil
+}
+
+/*
+Checksum - Returns a byte array representing the SHA-256 checksum of the public key. Most commonly used for validating
+that keys have not been modified during transfer
+*/
+func (key *KeyPair) Checksum() ([32]byte, error) {
+	content, err := key.Marshal()
+	if err != nil {
+		return [32]byte{}, err
+	}
+	
+	return sha256.Sum256(content), nil
 }
 
 /*
