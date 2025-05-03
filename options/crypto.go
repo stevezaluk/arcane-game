@@ -14,9 +14,9 @@ const (
 )
 
 /*
-CryptoOptions - Controls options related to Client/Server Key Exchange
+KEXOptions - Controls options related to Client/Server Key Exchange
 */
-type CryptoOptions struct {
+type KEXOptions struct {
 	// SecureConnections - If set to true, it forces clients to perform key exchange between the server and the client
 	SecureConnections bool
 
@@ -31,10 +31,10 @@ type CryptoOptions struct {
 }
 
 /*
-Crypto - Returns a pointer to a CryptoOptions struct, filled with the recommended options
+Crypto - Returns a pointer to a KEXOptions struct, filled with the recommended options
 */
-func Crypto() *CryptoOptions {
-	return &CryptoOptions{
+func Crypto() *KEXOptions {
+	return &KEXOptions{
 		ValidateKeys:        true,
 		EncryptionAlgorithm: KEXRSA,
 		KeySize:             KEYSIZE4096,
@@ -42,11 +42,11 @@ func Crypto() *CryptoOptions {
 }
 
 /*
-FromConfig - Fills the CryptoOptions struct with values pulled from Viper. Overwrites all pre-existing
+FromConfig - Fills the KEXOptions struct with values pulled from Viper. Overwrites all pre-existing
 values
 */
-func (opts *CryptoOptions) FromConfig() *CryptoOptions {
-	return &CryptoOptions{
+func (opts *KEXOptions) FromConfig() *KEXOptions {
+	return &KEXOptions{
 		ValidateKeys:        viper.GetBool("kex.validate_keys"),
 		EncryptionAlgorithm: KEXRSA, // this is always set to RSA, as others are not supported at the moment
 		KeySize:             viper.GetUint32("kex.key_size"),
@@ -61,7 +61,7 @@ to do so, either through errors during the process or if ConnectionOptions.Clien
 connection is forcibly evicted from the server. Assuming the client fails key-exchange, they will still be
 allowed to re-connect and re-attempt key-exchange
 */
-func (opts *CryptoOptions) SetSecureConnections(secured bool) *CryptoOptions {
+func (opts *KEXOptions) SetSecureConnections(secured bool) *KEXOptions {
 	opts.SecureConnections = secured
 
 	return opts
@@ -78,7 +78,7 @@ server.Server is running in an environment where it wants incredibly low latency
 server, then it can be disabled. No sensitive information is exposed between server/client communications aside from the
 player's email address
 */
-func (opts *CryptoOptions) SetValidateKeys(validate bool) *CryptoOptions {
+func (opts *KEXOptions) SetValidateKeys(validate bool) *KEXOptions {
 	opts.ValidateKeys = validate
 
 	return opts
@@ -89,7 +89,7 @@ SetEncryptionAlgorithm - Allows you to define the symmetric encryption algorithm
 Key Exchange. Currently, the 'algorithm' parameter is ignored and KEXRSA is set here as other algorithms are not
 supported.
 */
-func (opts *CryptoOptions) SetEncryptionAlgorithm(algorithm string) *CryptoOptions {
+func (opts *KEXOptions) SetEncryptionAlgorithm(algorithm string) *KEXOptions {
 	opts.EncryptionAlgorithm = KEXRSA
 
 	return opts
@@ -99,7 +99,7 @@ func (opts *CryptoOptions) SetEncryptionAlgorithm(algorithm string) *CryptoOptio
 SetKeySize - Allows you to define the size of the keys the server/client generates during Key Exchange. If this value
 is set any lower than 2048, it is reset back to 2048. Use either KEYSIZE2048 or KEYSIZE4096 to set these values.
 */
-func (opts *CryptoOptions) SetKeySize(size uint32) *CryptoOptions {
+func (opts *KEXOptions) SetKeySize(size uint32) *KEXOptions {
 	opts.KeySize = size
 
 	return opts
