@@ -19,14 +19,11 @@ package cmd
 import (
 	"fmt"
 	"github.com/mitchellh/go-homedir"
-	slogmulti "github.com/samber/slog-multi"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stevezaluk/arcane-game/game"
-	"github.com/stevezaluk/mtgjson-sdk-client/config"
 	"log/slog"
 	"os"
-	"time"
 )
 
 const (
@@ -47,13 +44,6 @@ side infrastructure of the Arcane Game Server.`,
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := game.NewServer(viper.GetString("server.lobby_name"), viper.GetString("server.game_mode"))
-		if err != nil {
-			fmt.Println("Error creating game server:", err.Error())
-			os.Exit(1)
-		}
-
-		server.Start()
 	},
 }
 
@@ -66,7 +56,6 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(initLogger)
 
 	/*
 		General CLI Flags
@@ -90,6 +79,7 @@ func init() {
 	*/
 	rootCmd.Flags().IntP("server.port", "p", 44444, "The port that the game server should listen for connections on")
 	rootCmd.Flags().Int("server.max_connections", 4, "The maximum number of connections the server will accept before closing the lobby. Effectively acts a max player count")
+	rootCmd.Flags().Bool("server.secure_connections", true, "Whether or not to use secure connections (end-to-end encryption")
 
 	/*
 		MTGJSON API Flags
@@ -105,7 +95,6 @@ func init() {
 	*/
 	rootCmd.Flags().String("crypto.key_algorithm", "rsa", "The default key exchange algorithm used for creating end-to-end encrypted connections. Clients must also use this algorithm")
 	rootCmd.Flags().Int("crypto.key_size", 4096, "The default size of the key to use for server and client encryption keys")
-	rootCmd.Flags().Bool("crypto.bypass_kex", false, "Allows user connections to bypass key exchange, effectively removing end-to-end encryption")
 
 	/*
 		Iterates through each command and binds there long values to viper values
@@ -118,45 +107,29 @@ func init() {
 }
 
 /*
-initConfig - Load the JSON config file from the default location and register its contents as viper keys
+initConfig - Initialize viper with values from config files or environmental variables. Defaults
+are not set here as CLI arguments are bound to viper config values. These provide defaults. Should
+not be called directly, automatically called as a part of viper's initialization stack
 */
 func initConfig() {
-	if cfgFile == "" {
+	if cfgFile != "" {
+		viper.SetConfigFile(cfgFile)
+	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println("Error finding home directory:", err.Error())
+			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		cfgFile = home + defaultConfigPath + "/" + defaultConfigName
+		viper.SetConfigType("json")
+		viper.AddConfigPath(home + "/.config/arcane-game-server/")
+		viper.SetConfigName("config.json")
 	}
 
-	err := config.ReadConfigFile(cfgFile)
-	if err != nil {
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println("Error reading config file:", err.Error())
 		os.Exit(1)
 	}
-}
-
-// this is going to be completely externalized in a separate MR
-func initLogger() {
-	buildFileName := func() string {
-		timestamp := time.Now().Format(time.RFC3339)
-		return viper.GetString("log.path") + "/arcane-" + timestamp + ".json"
-	}
-
-	file, err := os.OpenFile(buildFileName(), os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println("Error initializing logger:", err.Error())
-		os.Exit(1)
-	}
-
-	handler := slogmulti.Fanout(
-		slog.NewJSONHandler(file, nil),
-		slog.NewTextHandler(os.Stdout, nil))
-
-	slog.SetDefault(slog.New(handler))
-
-	viper.Set("log.fileRef", file)
-	viper.Set("log.file", file.Name())
 }

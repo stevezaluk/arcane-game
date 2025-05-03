@@ -3,13 +3,12 @@ module github.com/stevezaluk/arcane-game
 go 1.23.2
 
 require (
-	github.com/golang/protobuf v1.5.3
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/samber/slog-multi v1.3.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	github.com/stevezaluk/mtgjson-models v1.3.3
-	github.com/stevezaluk/mtgjson-sdk-client v1.1.8
+	github.com/stevezaluk/mtgjson-models v1.3.9
+	github.com/stevezaluk/mtgjson-sdk-client v1.2.0
 	google.golang.org/protobuf v1.35.2
 )
 

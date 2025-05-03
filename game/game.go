@@ -30,7 +30,7 @@ type Game struct {
 	Battlefield *Zone
 	Exile       *Zone
 	Command     *Zone
-	API         *api.MtgjsonApi
+	API         *api.MtgjsonAPI
 }
 
 /*
@@ -51,7 +51,7 @@ func NewGame(name string, gameMode string) *Game {
 		Battlefield: battlefield,
 		Exile:       exile,
 		Command:     command,
-		API:         api.New(),
+		API:         api.FromConfig(),
 	}
 }
 
