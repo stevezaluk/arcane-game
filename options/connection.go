@@ -6,9 +6,9 @@ import (
 )
 
 /*
-ConnectionOptions - A structure for tracking parameterized options to use relating to client and server connections
+ServerOptions - A structure for tracking parameterized options to use relating to client and server connections
 */
-type ConnectionOptions struct {
+type ServerOptions struct {
 	// MaxConnectionCount - The maximum amount of successful connections the server will accept
 	MaxConnectionCount uint32
 
@@ -18,7 +18,7 @@ type ConnectionOptions struct {
 	// WaitConnectionsTimeout - The number of seconds the server should wait to accept new clients before closing new connections
 	WaitConnectionsTimeout time.Duration
 
-	// EnforceACLs - If set to true, then enforce the lists defined in ConnectionOptions.Whitelist and ConnectionOptions.Blacklist
+	// EnforceACLs - If set to true, then enforce the lists defined in ServerOptions.Whitelist and ServerOptions.Blacklist
 	EnforceACLs bool
 
 	// Whitelist - Explicitly allow the IP Addresses defined in this slice
@@ -29,10 +29,10 @@ type ConnectionOptions struct {
 }
 
 /*
-Connection - Returns an empty ConnectionOptions struct
+Server - Returns an empty ServerOptions struct
 */
-func Connection() *ConnectionOptions {
-	return &ConnectionOptions{
+func Server() *ServerOptions {
+	return &ServerOptions{
 		MaxConnectionCount:     4,
 		ClientTimeout:          30,
 		WaitConnectionsTimeout: 120,
@@ -43,11 +43,11 @@ func Connection() *ConnectionOptions {
 }
 
 /*
-FromConfig - Fills the ConnectionOptions struct with values pulled from Viper. Overwrites an pre-existing
+FromConfig - Fills the ServerOptions struct with values pulled from Viper. Overwrites an pre-existing
 values
 */
-func (opts *ConnectionOptions) FromConfig() *ConnectionOptions {
-	return &ConnectionOptions{
+func (opts *ServerOptions) FromConfig() *ServerOptions {
+	return &ServerOptions{
 		MaxConnectionCount:     viper.GetUint32("server.max_connections"),
 		ClientTimeout:          viper.GetDuration("server.client_timeout"),
 		WaitConnectionsTimeout: viper.GetDuration("server.wait_connections_timeout"),
@@ -67,7 +67,7 @@ An upper limit for this is not set, so there truly is not limit to what you can 
 32-bit unsigned integer limit). I recommend setting this to 6 connections (or under) as feasibly there is no way to
 play a game of Magic: The Gathering (in a reasonable amount of time) with more than 6 people.
 */
-func (opts *ConnectionOptions) SetMaxConnectionCount(max uint32) *ConnectionOptions {
+func (opts *ServerOptions) SetMaxConnectionCount(max uint32) *ServerOptions {
 	opts.MaxConnectionCount = max
 
 	return opts
@@ -80,7 +80,7 @@ are still allowed.
 
 Timeout must be defined in seconds
 */
-func (opts *ConnectionOptions) SetClientTimeout(timeout uint32) *ConnectionOptions {
+func (opts *ServerOptions) SetClientTimeout(timeout uint32) *ServerOptions {
 	opts.ClientTimeout = time.Second * time.Duration(timeout)
 
 	return opts
@@ -99,18 +99,18 @@ and stopped as there is no need to process game logic with no active connections
 
 Timeout must be defined in seconds
 */
-func (opts *ConnectionOptions) SetWaitConnectionsTimeout(timeout uint32) *ConnectionOptions {
+func (opts *ServerOptions) SetWaitConnectionsTimeout(timeout uint32) *ServerOptions {
 	opts.WaitConnectionsTimeout = time.Second * time.Duration(timeout)
 
 	return opts
 }
 
 /*
-SetEnforceACLs - Instructs the server to validate client IP Addresses present in ConnectionOptions.Whitelist
-and ConnectionOptions.Blacklist when accepting connections. Any client IP Addresses placed in these lists
-are ignored unless ConnectionOptions.EnforceACLs is set to true
+SetEnforceACLs - Instructs the server to validate client IP Addresses present in ServerOptions.Whitelist
+and ServerOptions.Blacklist when accepting connections. Any client IP Addresses placed in these lists
+are ignored unless ServerOptions.EnforceACLs is set to true
 */
-func (opts *ConnectionOptions) SetEnforceACLs() *ConnectionOptions {
+func (opts *ServerOptions) SetEnforceACLs() *ServerOptions {
 	opts.EnforceACLs = true
 
 	return opts
@@ -126,7 +126,7 @@ session keys) only get sent to trusted clients.
 
 If a client IP Address is improperly formatted (ex: 11.11.11.111111111) then it is ignored
 */
-func (opts *ConnectionOptions) SetWhitelist(acl []string) *ConnectionOptions {
+func (opts *ServerOptions) SetWhitelist(acl []string) *ServerOptions {
 	opts.Whitelist = acl
 
 	return opts
@@ -142,7 +142,7 @@ session keys) only get sent to trusted clients
 
 If a client IP Address is improperly formatted (ex: 11.11.11.111111111) then it is ignored
 */
-func (opts *ConnectionOptions) SetBlacklist(acl []string) *ConnectionOptions {
+func (opts *ServerOptions) SetBlacklist(acl []string) *ServerOptions {
 	opts.Blacklist = acl
 
 	return opts
