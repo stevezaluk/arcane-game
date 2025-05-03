@@ -46,10 +46,14 @@ func FromPrivateKey(private *rsa.PrivateKey) (*KeyPair, error) {
 }
 
 /*
-GenerateKey - Generates a Key Pair that with the key size that was defined. If size == 0,
-then a 2048-bit key is used.
+GenerateKey - Generates a Key Pair that with the key size that was defined. If size is less than
+2048, then the size is changed to 2048
 */
 func GenerateKey(size int) (*KeyPair, error) {
+	if size < 2048 {
+		size = 2048
+	}
+
 	privateKey, err := rsa.GenerateKey(rand.Reader, size)
 	if err != nil {
 		return nil, err
