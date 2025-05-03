@@ -13,6 +13,9 @@ const (
 	KEYSIZE4096 uint32 = 4096
 )
 
+/*
+CryptoOptions - Controls options related to Client/Server Key Exchange
+*/
 type CryptoOptions struct {
 	// SecureConnections - If set to true, it forces clients to perform key exchange between the server and the client
 	SecureConnections bool
