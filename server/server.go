@@ -21,7 +21,7 @@ type IServer interface {
 	Log() *Log
 
 	// SetOptions - Sets the connection options for the server
-	SetOptions(*options.ConnectionOptions)
+	SetOptions(serverOptions *options.ServerOptions)
 
 	// listen - Creates a new raw TCP socket and instructs the server to start listening on the port specified in server.Port
 	listen() error
@@ -41,7 +41,7 @@ Server - The primary construct used for handling user connections and providing 
 */
 type Server struct {
 	// opts - The user-selected options used for new Connections
-	opts *options.ConnectionOptions
+	opts *options.ServerOptions
 
 	// log - Provides logic for creating and writing log files
 	log *Log
@@ -68,7 +68,7 @@ type Server struct {
 New - Constructs the server and returns a pointer to it. Log is expected to be not nil,
 and fully initialized with server.NewLogger or server.NewLoggerFromConfig
 */
-func New(port int, log *Log, opts *options.ConnectionOptions) *Server {
+func New(port int, log *Log, opts *options.ServerOptions) *Server {
 	return &Server{
 		opts:            opts,
 		log:             log,
@@ -86,7 +86,7 @@ func FromConfig() *Server {
 	return New(
 		viper.GetInt("server.port"),
 		NewLoggerFromConfig(),
-		options.Connection().FromConfig(),
+		options.Server().FromConfig(),
 	)
 }
 
@@ -108,7 +108,7 @@ func (server *Server) Log() *Log {
 /*
 SetOptions - Sets the connection options for the server
 */
-func (server *Server) SetOptions(opts *options.ConnectionOptions) {
+func (server *Server) SetOptions(opts *options.ServerOptions) {
 	server.opts = opts
 }
 
